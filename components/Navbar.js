@@ -3,93 +3,65 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   const pathname = usePathname();
-
-  // Check if a link is active
-  const isActive = (path) => {
-    return pathname === path;
-  };
 
   return (
     <nav className="bg-white shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="font-bold text-xl">
-                <Image
-                  src="/logo-cashSense.png"
-                  alt="cashsense logo"
-                  width={50}
-                  height={12}
-                  priority
-                />
-              </Link>
-            </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+          {/* Logo et nom de l'application */}
+          <div className="flex-shrink-0 flex items-center">
+            <Link href="/" className="font-bold text-xl flex items-center">
+              <Image
+                src="/logo-cashSense.png"
+                alt="cashsense logo"
+                width={50}
+                height={12}
+                priority
+              />
+              <span className="ml-2 font-semibold">Cash Sense</span>
+            </Link>
+          </div>
+
+          {/* Boutons de connexion et inscription (pour écrans moyens et grands) */}
+          <div className="hidden sm:flex items-center space-x-4">
+            <Button asChild>
               <Link
-                href="/"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-16 ${
-                  isActive("/")
-                    ? "border-blue-500 text-gray-900"
-                    : "border-transparent text-gray-500 hover:border-gray-300"
-                }`}
+                href="/login"
+                className="text-gray-800 hover:text-blue-600 font-medium py-2 px-4 rounded"
               >
-                Accueil
+                Login
               </Link>
-              <Link
-                href="/transactions"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-16 ${
-                  isActive("/transactions")
-                    ? "border-blue-500 text-gray-900"
-                    : "border-transparent text-gray-500 hover:border-gray-300"
-                }`}
-              >
-                Transactions
-              </Link>
-              <Link
-                href="/budgets"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-16 ${
-                  isActive("/budgets")
-                    ? "border-blue-500 text-gray-900"
-                    : "border-transparent text-gray-500 hover:border-gray-300"
-                }`}
-              >
-                Budget
-              </Link>
-            </div>
+            </Button>
+            <Link
+              href="/signup"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
+            >
+              Sign Up
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu - visible on small screens */}
+      {/* Boutons de connexion et inscription (pour petits écrans) */}
       <div className="sm:hidden border-t border-gray-200">
-        <div className="flex justify-around pt-2 pb-3">
+        <div className="flex justify-around py-3">
+          <Button asChild>
+            <Link
+              href="/login"
+              className="text-gray-800 hover:text-blue-600 font-medium"
+            >
+              Login
+            </Link>
+          </Button>
           <Link
-            href="/"
-            className={`flex flex-col items-center px-1 pt-1 text-sm font-medium ${
-              isActive("/") ? "text-blue-600" : "text-gray-500"
-            }`}
+            href="/signup"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded"
           >
-            <span>Accueil</span>
-          </Link>
-          <Link
-            href="/transactions"
-            className={`flex flex-col items-center px-1 pt-1 text-sm font-medium ${
-              isActive("/transactions") ? "text-blue-600" : "text-gray-500"
-            }`}
-          >
-            <span>Transactions</span>
-          </Link>
-          <Link
-            href="/budgets"
-            className={`flex flex-col items-center px-1 pt-1 text-sm font-medium ${
-              isActive("/budgets") ? "text-blue-600" : "text-gray-500"
-            }`}
-          >
-            <span>Budget</span>
+            Sign Up
           </Link>
         </div>
       </div>
