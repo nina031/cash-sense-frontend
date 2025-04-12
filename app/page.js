@@ -8,7 +8,7 @@ export default function Home() {
         <div className="flex items-center justify-center gap-4">
           <Image
             src="/logo-cashSense.png"
-            alt="Next.js logo"
+            alt="cashsense logo"
             width={100}
             height={24}
             priority
