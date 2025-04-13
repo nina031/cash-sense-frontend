@@ -28,20 +28,18 @@ export default function Navbar() {
 
           {/* Boutons de connexion et inscription (pour écrans moyens et grands) */}
           <div className="hidden sm:flex items-center space-x-4">
-            <Button asChild>
-              <Link
-                href="/login"
-                className="text-gray-800 hover:text-blue-600 font-medium py-2 px-4 rounded"
-              >
-                Login
-              </Link>
-            </Button>
-            <Link
-              href="/signup"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
+            <Button
+              asChild
+              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-full"
             >
-              Sign Up
-            </Link>
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button
+              asChild
+              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-full"
+            >
+              <Link href="/login">Sign up</Link>
+            </Button>
           </div>
         </div>
       </div>

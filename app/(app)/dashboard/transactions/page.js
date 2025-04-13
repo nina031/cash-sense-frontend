@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import TransactionList from "../../components/TransactionList";
+import TransactionList from "@/components/TransactionList";
 
 export default function TransactionsPage() {
   const [accessToken, setAccessToken] = useState("");
@@ -43,7 +43,7 @@ export default function TransactionsPage() {
     try {
       // Dynamically import the service
       const { createSandboxToken, exchangeToken } = await import(
-        "../../services/transactionService"
+        "@/services/transactionService"
       );
 
       // 1. Create a sandbox token
