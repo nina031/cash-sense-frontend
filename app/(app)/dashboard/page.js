@@ -1,4 +1,3 @@
-// Mise à jour pour app/(app)/dashboard/page.js
 "use client";
 
 import { useDemoMode } from "@/contexts/DemoContext";
@@ -10,16 +9,6 @@ export default function DashboardPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Tableau de bord</h1>
-
-      {isDemoMode && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-yellow-700">
-            <strong>Mode Démo :</strong> Vous consultez une version de
-            démonstration de Cash Sense. Les données affichées sont fictives et
-            servent uniquement à illustrer les fonctionnalités de l'application.
-          </p>
-        </div>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm">
