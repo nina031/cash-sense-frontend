@@ -26,7 +26,7 @@ export default function Home() {
           <div className="flex gap-4 flex-col sm:flex-row">
             <Link
               className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white py-2 rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto flex items-center justify-center"
-              href="/transactions"
+              href="/demo"
             >
               Try demo
             </Link>

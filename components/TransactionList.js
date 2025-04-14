@@ -3,15 +3,20 @@
  */
 import { useState, useEffect } from "react";
 import TransactionItem from "./TransactionItem";
+import { useDemoMode } from "@/contexts/DemoContext";
 
 export default function TransactionList({ accessToken }) {
+  const { isDemoMode, demoAccessToken } = useDemoMode();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Utiliser le token approprié (celui du mode démo ou celui passé en props)
+  const effectiveToken = isDemoMode ? demoAccessToken : accessToken;
+
   useEffect(() => {
     // Only try to fetch transactions if we have an access token
-    if (!accessToken) {
+    if (!effectiveToken) {
       setLoading(false);
       return;
     }
@@ -21,11 +26,11 @@ export default function TransactionList({ accessToken }) {
       try {
         // Import the service to avoid issues with Next.js SSR
         const { getTransactions } = await import(
-          "../services/transactionService"
+          "@/services/transactionService"
         );
 
         // Fetch transactions using the service
-        const data = await getTransactions(accessToken);
+        const data = await getTransactions(effectiveToken);
 
         // Sort transactions by date (most recent first)
         const sortedTransactions = data.sort(
@@ -44,7 +49,7 @@ export default function TransactionList({ accessToken }) {
     }
 
     fetchTransactions();
-  }, [accessToken]); // Re-fetch when accessToken changes
+  }, [effectiveToken]); // Re-fetch when effectiveToken changes
 
   // Show loading state
   if (loading) {
@@ -66,7 +71,7 @@ export default function TransactionList({ accessToken }) {
   }
 
   // Show message when no access token is provided
-  if (!accessToken) {
+  if (!effectiveToken) {
     return (
       <div className="p-4 text-center text-gray-600">
         <p>
