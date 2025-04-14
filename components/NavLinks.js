@@ -11,12 +11,10 @@ const links = [
   { name: "Transactions", href: "/dashboard/transactions", icon: CreditCard },
   { name: "Budgets", href: "/dashboard/budgets", icon: PieChart },
   { name: "Objectifs", href: "/dashboard/goals", icon: Goal },
-  { name: "Paramètres", href: "/dashboard/settings", icon: Settings },
 ];
 
 export default function NavLinks() {
   const pathname = usePathname();
-
   return (
     <>
       {links.map((link) => {
@@ -26,14 +24,12 @@ export default function NavLinks() {
             key={link.name}
             href={link.href}
             className={cn(
-              "flex h-12 items-center justify-start gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-100",
-              pathname === link.href
-                ? "bg-gray-100 text-blue-600"
-                : "text-gray-700"
+              "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-100 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3",
+              { "bg-sky-100 text-blue-600": pathname === link.href }
             )}
           >
-            <LinkIcon className="h-5 w-5" />
-            <span>{link.name}</span>
+            <LinkIcon className="w-6" />
+            <p className="hidden md:block">{link.name}</p>
           </Link>
         );
       })}
