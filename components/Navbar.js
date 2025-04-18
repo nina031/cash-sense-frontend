@@ -25,10 +25,10 @@ export default function Navbar() {
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="font-bold text-xl flex items-center">
               <Image
-                src="/logo-cashSense.png"
+                src="/tirelire.png"
                 alt="cashsense logo"
                 width={50}
-                height={12}
+                height={25}
                 priority
               />
               <span className="ml-2 font-semibold">Cash Sense</span>

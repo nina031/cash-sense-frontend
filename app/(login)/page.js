@@ -7,7 +7,7 @@ export default function Home() {
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <div className="flex items-center justify-center gap-4">
           <Image
-            src="/logo-cashSense.png"
+            src="/tirelire.png"
             alt="cashsense logo"
             width={80}
             height={20}
