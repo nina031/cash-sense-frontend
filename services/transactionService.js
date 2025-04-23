@@ -3,8 +3,8 @@
  */
 
 // Use environment variables from .env.local
-const API_URL = process.env.RENDER_PUBLIC_API_URL;
-const ENV_MODE = process.env.RENDER_PUBLIC_ENV_MODE;
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const ENV_MODE = process.env.NEXT_PUBLIC_ENV_MODE;
 
 /**
  * Fetches transactions using the provided access token
