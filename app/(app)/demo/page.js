@@ -95,7 +95,7 @@ export default function DemoPage() {
                 onClick={() => router.push("/")}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
               >
-                Retour à l'accueil
+                Retour à l&apos;accueil
               </button>
             </div>
           </div>
