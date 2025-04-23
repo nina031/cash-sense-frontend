@@ -23,7 +23,7 @@ export default function DemoPage() {
         setStatus("Création d'un compte de démonstration...");
         const sandboxResponse = await fetch(
           `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+            process.env.RENDER_PUBLIC_API_URL || "http://localhost:5000"
           }/api/create_sandbox_token`,
           {
             method: "POST",
@@ -46,7 +46,7 @@ export default function DemoPage() {
         setStatus("Configuration de votre accès...");
         const exchangeResponse = await fetch(
           `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+            process.env.RENDER_PUBLIC_API_URL || "http://localhost:5000"
           }/api/exchange_token`,
           {
             method: "POST",
