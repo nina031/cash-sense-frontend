@@ -7,9 +7,9 @@ export default function Home() {
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <div className="flex items-center justify-center gap-4">
           <Image
-            src="/tirelire.png"
+            src="/logo_chart.png"
             alt="cashsense logo"
-            width={80}
+            width={70}
             height={20}
             priority
           />
@@ -29,13 +29,6 @@ export default function Home() {
               href="/demo"
             >
               Try demo
-            </Link>
-
-            <Link
-              className="rounded-full bg-white border border-solid border-black/[.2] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto"
-              href="/budgets"
-            >
-              Synchronize your account
             </Link>
           </div>
         </div>

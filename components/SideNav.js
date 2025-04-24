@@ -17,7 +17,7 @@ export default function SideNav() {
         <Link href="/" className="flex items-center gap-2">
           <div className="relative h-10 w-10 overflow-hidden">
             <Image
-              src="/tirelire.png"
+              src="/logo_chart.png"
               alt="Cash Sense"
               width={40}
               height={40}
