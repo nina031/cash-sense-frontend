@@ -2,9 +2,10 @@
 "use client";
 
 import SideNav from "@/components/SideNav";
+import UserMenu from "@/components/UserMenu";
 import { useDemoMode } from "@/contexts/DemoContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { X, AlertCircle, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({ children }) {
@@ -33,6 +34,11 @@ export default function DashboardLayout({ children }) {
         <SideNav />
       </div>
       <div className="flex-1 flex flex-col">
+        {/* Header with user menu */}
+        <header className="border-b border-gray-100 bg-white py-2 px-6 flex justify-end items-center">
+          <UserMenu />
+        </header>
+
         <main className="flex-1 p-6 overflow-y-auto">
           {/* Bannière de notification du mode démo */}
           {isDemoMode && (
@@ -44,15 +50,7 @@ export default function DashboardLayout({ children }) {
             </div>
           )}
 
-          {/* Bannière utilisateur connecté */}
-          {!isDemoMode && session?.user && (
-            <div className="mb-6 max-w-110 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg flex items-center h-4 rounded">
-              <Info className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-              <p className="text-blue-800 text-sm">
-                Connecté en tant que: {session.user.name || session.user.email}
-              </p>
-            </div>
-          )}
+          {/* Nous avons supprimé la bannière utilisateur connecté ici */}
 
           {children}
         </main>
