@@ -1,4 +1,3 @@
-// app/(app)/dashboard/layout.js
 "use client";
 
 import SideNav from "@/components/SideNav";
@@ -30,10 +29,11 @@ export default function DashboardLayout({ children }) {
         </button>
       )}
 
-      <div className="w-64 hidden md:block">
-        <SideNav />
-      </div>
-      <div className="flex-1 flex flex-col">
+      {/* SideNav */}
+      <SideNav />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col ml-[270px] transition-all duration-300">
         {/* Header with user menu */}
         <header className="border-b border-gray-100 bg-white py-2 px-6 flex justify-end items-center">
           <UserMenu />
@@ -49,8 +49,6 @@ export default function DashboardLayout({ children }) {
               </p>
             </div>
           )}
-
-          {/* Nous avons supprimé la bannière utilisateur connecté ici */}
 
           {children}
         </main>
