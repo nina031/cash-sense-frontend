@@ -9,11 +9,16 @@ import {
   Settings,
   Goal,
   LayoutDashboard,
+  LogOut,
+  HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { useDemoMode } from "@/contexts/DemoContext";
+import { useRouter } from "next/navigation";
 
-// Définition des liens de navigation
-const links = [
+// Définition des liens de navigation principaux
+const mainLinks = [
   { name: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard },
   { name: "Transactions", href: "/dashboard/transactions", icon: CreditCard },
   { name: "Budgets", href: "/dashboard/budgets", icon: PieChart },
@@ -22,41 +27,97 @@ const links = [
 
 export default function NavLinks({ isCollapsed = false }) {
   const pathname = usePathname();
+  const { logout } = useAuth();
+  const { isDemoMode, deactivateDemoMode } = useDemoMode();
+  const router = useRouter();
 
-  return (
-    <ul className="flex flex-col gap-1">
-      {links.map((link) => {
-        const LinkIcon = link.icon;
-        return (
-          <li key={link.name} className="relative group">
-            <Link
-              href={link.href}
+  // Fonction de déconnexion
+  const handleLogout = async () => {
+    if (isDemoMode) {
+      deactivateDemoMode();
+      router.push("/");
+    } else {
+      await logout();
+    }
+  };
+
+  // Liens utilitaires (en bas du menu)
+  const utilityLinks = [
+    { name: "Aide", href: "/help", icon: HelpCircle },
+    { name: "Paramètres", href: "/dashboard/account", icon: Settings },
+    // Pour la déconnexion, on utilise une fonction au lieu d'un lien
+    {
+      name: isDemoMode ? "Quitter le mode démo" : "Déconnexion",
+      onClick: handleLogout,
+      icon: LogOut,
+    },
+  ];
+
+  // Fonction pour rendre un lien individuel
+  const renderNavLink = (link, index) => {
+    const LinkIcon = link.icon;
+    const isActive = link.href && pathname === link.href;
+
+    // Propriétés communes pour tous les éléments de navigation
+    const commonProps = {
+      className: cn(
+        "flex items-center gap-2 rounded-lg p-2.5 transition-all duration-300 hover:bg-[#ebe0ff] hover:text-[#151A2D]",
+        isActive && "bg-[#ebe0ff]",
+        isCollapsed && "justify-center"
+      ),
+    };
+
+    return (
+      <li key={link.name + index} className="relative group">
+        {link.href ? (
+          // Pour les liens de navigation normaux
+          <Link href={link.href} {...commonProps}>
+            <LinkIcon size={20} />
+            <span
               className={cn(
-                "flex items-center gap-3 rounded-lg p-3 transition-all duration-300 hover:bg-sky-100 hover:text-[#151A2D]",
-                pathname === link.href && "bg-sky-100",
-                isCollapsed && "justify-center"
+                "transition-opacity duration-300 whitespace-nowrap text-sm",
+                isCollapsed && "opacity-0 pointer-events-none hidden"
               )}
             >
-              <LinkIcon size={22} />
-              <span
-                className={cn(
-                  "transition-opacity duration-300 whitespace-nowrap",
-                  isCollapsed && "opacity-0 pointer-events-none hidden"
-                )}
-              >
-                {link.name}
-              </span>
-            </Link>
+              {link.name}
+            </span>
+          </Link>
+        ) : (
+          // Pour les actions (comme la déconnexion)
+          <button onClick={link.onClick} {...commonProps}>
+            <LinkIcon size={20} />
+            <span
+              className={cn(
+                "transition-opacity duration-300 whitespace-nowrap text-left text-sm",
+                isCollapsed && "opacity-0 pointer-events-none hidden"
+              )}
+            >
+              {link.name}
+            </span>
+          </button>
+        )}
 
-            {/* Tooltip for collapsed state */}
-            {isCollapsed && (
-              <div className="absolute top-0 left-full ml-6 bg-white text-[#151A2D] rounded-lg py-1.5 px-3 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 whitespace-nowrap shadow-md z-10">
-                {link.name}
-              </div>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+        {/* Tooltip pour l'état replié */}
+        {isCollapsed && (
+          <div className="absolute top-0 left-full ml-6 bg-white text-[#151A2D] rounded-lg py-1.5 px-3 text-xs opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 whitespace-nowrap shadow-md z-10">
+            {link.name}
+          </div>
+        )}
+      </li>
+    );
+  };
+
+  return (
+    <div className="flex flex-col h-full justify-between">
+      {/* Liens principaux en haut */}
+      <ul className="flex flex-col gap-1">
+        {mainLinks.map((link, index) => renderNavLink(link, index))}
+      </ul>
+
+      {/* Liens utilitaires en bas */}
+      <ul className="flex flex-col gap-1 mt-auto">
+        {utilityLinks.map((link, index) => renderNavLink(link, index))}
+      </ul>
+    </div>
   );
 }

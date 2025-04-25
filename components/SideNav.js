@@ -31,7 +31,7 @@ export default function SideNav() {
   return (
     <div
       className={cn(
-        "fixed transition-all duration-300 bg-white rounded-2xl m-4 shadow-md",
+        "fixed transition-all duration-300 bg-white rounded-2xl m-4 shadow-lg border border-gray-100 flex flex-col",
         isCollapsed ? "w-[85px]" : "w-[270px]",
         "h-[calc(100vh-2rem)]"
       )}
@@ -92,8 +92,8 @@ export default function SideNav() {
         </div>
       )}
 
-      {/* Navigation */}
-      <div className="px-4 py-2 mt-4">
+      {/* Navigation - maintenant avec flex-1 pour qu'il prenne toute la hauteur disponible */}
+      <div className="px-4 py-2 mt-4 flex-1 flex flex-col">
         <NavLinks isCollapsed={isCollapsed} />
       </div>
     </div>
