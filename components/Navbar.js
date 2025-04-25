@@ -1,12 +1,15 @@
+// components/Navbar.js
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { session, logout } = useAuth();
 
   return (
     <nav className="bg-white shadow-sm">
@@ -26,18 +29,37 @@ export default function Navbar() {
             </Link>
           </div>
           <div className="flex items-center space-x-4">
-            <Button
-              asChild
-              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-full"
-            >
-              <Link href="/login">Login</Link>
-            </Button>
-            <Button
-              asChild
-              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-full"
-            >
-              <Link href="/login">Sign up</Link>
-            </Button>
+            {session ? (
+              <>
+                <Button
+                  asChild
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-full"
+                >
+                  <Link href="/dashboard">Tableau de bord</Link>
+                </Button>
+                <Button
+                  onClick={logout}
+                  className="bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-full border border-gray-300"
+                >
+                  Déconnexion
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  asChild
+                  className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-full"
+                >
+                  <Link href="/login">Se connecter</Link>
+                </Button>
+                <Button
+                  asChild
+                  className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-full"
+                >
+                  <Link href="/signup">S'inscrire</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

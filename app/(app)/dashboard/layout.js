@@ -1,13 +1,15 @@
+// app/(app)/dashboard/layout.js
 "use client";
 
 import SideNav from "@/components/SideNav";
 import { useDemoMode } from "@/contexts/DemoContext";
-import { X, AlertCircle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { X, AlertCircle, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Info } from "lucide-react";
 
 export default function DashboardLayout({ children }) {
   const { isDemoMode, deactivateDemoMode } = useDemoMode();
+  const { session } = useAuth();
   const router = useRouter();
 
   const handleExitDemo = () => {
@@ -16,7 +18,7 @@ export default function DashboardLayout({ children }) {
   };
 
   return (
-    <div className=" flex h-screen relative">
+    <div className="flex h-screen relative">
       {/* Bouton de sortie du mode démo en position fixe en haut à droite */}
       {isDemoMode && (
         <button
@@ -37,10 +39,21 @@ export default function DashboardLayout({ children }) {
             <div className="mb-6 max-w-110 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg flex items-center h-4 rounded">
               <Info className="w-5 h-5 text-yellow-500 mr-3 flex-shrink-0" />
               <p className="text-yellow-800 text-sm">
-                You are currently in demo mode with simulated data.
+                Vous êtes actuellement en mode démo avec des données simulées.
               </p>
             </div>
           )}
+
+          {/* Bannière utilisateur connecté */}
+          {!isDemoMode && session?.user && (
+            <div className="mb-6 max-w-110 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg flex items-center h-4 rounded">
+              <Info className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+              <p className="text-blue-800 text-sm">
+                Connecté en tant que: {session.user.name || session.user.email}
+              </p>
+            </div>
+          )}
+
           {children}
         </main>
       </div>

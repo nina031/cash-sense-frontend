@@ -1,6 +1,11 @@
+// app/layout.js
+"use client";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { DemoProvider } from "@/contexts/DemoContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,19 +17,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "Cash Sense - Gestion de finances personnelles",
-  description:
-    "Suivez vos transactions, gérez votre budget et prenez le contrôle de vos finances personnelles avec Cash Sense.",
-};
-
 export default function RootLayout({ children }) {
   return (
     <html lang="fr">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <DemoProvider>{children}</DemoProvider>
+        <SessionProvider>
+          <AuthProvider>
+            <DemoProvider>{children}</DemoProvider>
+          </AuthProvider>
+        </SessionProvider>
       </body>
     </html>
   );
