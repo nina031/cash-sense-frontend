@@ -1,19 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import NavLinks from "@/components/NavLinks";
-import { ChevronLeft } from "lucide-react";
+import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function SideNav() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // Déplacer l'état initial à undefined pour éviter les erreurs d'hydratation
+  const [isCollapsed, setIsCollapsed] = useState(undefined);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // N'initialiser l'état qu'après le montage côté client
+  useEffect(() => {
+    setIsCollapsed(false);
+    setIsMounted(true);
+  }, []);
 
   // Toggle SideNav's collapsed state
   const toggleSideNav = () => {
     setIsCollapsed(!isCollapsed);
   };
+
+  // Ne rien rendre pendant l'hydratation
+  if (!isMounted) {
+    return <div className="fixed w-[270px] h-[calc(100vh-2rem)] m-4"></div>;
+  }
 
   return (
     <div
@@ -24,9 +37,22 @@ export default function SideNav() {
       )}
     >
       {/* SideNav Header */}
-      <div className="flex items-center justify-between p-5 border-b border-gray-100">
+      <div
+        className={cn(
+          "p-5 border-b border-gray-100",
+          isCollapsed
+            ? "flex justify-center"
+            : "flex items-center justify-between"
+        )}
+      >
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
+        <Link
+          href="/"
+          className={cn(
+            "flex items-center gap-2",
+            isCollapsed && "justify-center"
+          )}
+        >
           <div className="relative">
             <Image
               src="/logo_chart.png"
@@ -36,35 +62,38 @@ export default function SideNav() {
               className="object-contain rounded-full"
             />
           </div>
-          <span
-            className={cn(
-              "font-semibold text-gray-800 transition-opacity duration-300",
-              isCollapsed && "opacity-0 pointer-events-none"
-            )}
-          >
-            Cash Sense
-          </span>
+          {!isCollapsed && (
+            <span className="font-semibold text-gray-800">Cash Sense</span>
+          )}
         </Link>
 
-        {/* Toggle button */}
-        <button
-          onClick={toggleSideNav}
-          className={cn(
-            "h-[35px] w-[35px] flex items-center justify-center bg-indigo-600 text-white rounded-lg transition-all duration-300 hover:bg-indigo-700",
-            isCollapsed && "transform translate-x-[-4px] translate-y-[65px]"
-          )}
-        >
-          <ChevronLeft
-            className={cn(
-              "transition-transform duration-300",
-              isCollapsed && "transform rotate-180"
-            )}
-          />
-        </button>
+        {/* Toggle button - Only visible when not collapsed */}
+        {!isCollapsed && (
+          <button
+            onClick={toggleSideNav}
+            className="h-[35px] w-[35px] flex items-center justify-center bg-gray-100 text-gray-600 rounded-lg transition-all duration-300 hover:bg-gray-200"
+            aria-label="Replier le menu"
+          >
+            <Menu size={18} />
+          </button>
+        )}
       </div>
 
+      {/* Toggle button - Only visible when collapsed, positioned below header */}
+      {isCollapsed && (
+        <div className="flex justify-center mt-4 mb-2">
+          <button
+            onClick={toggleSideNav}
+            className="h-[35px] w-[35px] flex items-center justify-center bg-gray-100 text-gray-600 rounded-lg transition-all duration-300 hover:bg-gray-200"
+            aria-label="Déplier le menu"
+          >
+            <Menu size={18} />
+          </button>
+        </div>
+      )}
+
       {/* Navigation */}
-      <div className={cn("px-4 py-4", isCollapsed ? "mt-16" : "mt-2")}>
+      <div className="px-4 py-2 mt-4">
         <NavLinks isCollapsed={isCollapsed} />
       </div>
     </div>

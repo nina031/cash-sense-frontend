@@ -35,7 +35,7 @@ export default function DashboardLayout({ children }) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col ml-[270px] transition-all duration-300">
         {/* Header with user menu */}
-        <header className="border-b border-gray-100 bg-white py-2 px-6 flex justify-end items-center">
+        <header className="py-2 px-6 flex justify-end items-center">
           <UserMenu />
         </header>
 

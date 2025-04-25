@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, CreditCard, PieChart, Settings, Goal } from "lucide-react";
+import {
+  Home,
+  CreditCard,
+  PieChart,
+  Settings,
+  Goal,
+  LayoutDashboard,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Définition des liens de navigation
 const links = [
-  { name: "Tableau de bord", href: "/dashboard", icon: Home },
+  { name: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard },
   { name: "Transactions", href: "/dashboard/transactions", icon: CreditCard },
   { name: "Budgets", href: "/dashboard/budgets", icon: PieChart },
   { name: "Objectifs", href: "/dashboard/goals", icon: Goal },
@@ -26,7 +33,7 @@ export default function NavLinks({ isCollapsed = false }) {
               href={link.href}
               className={cn(
                 "flex items-center gap-3 rounded-lg p-3 transition-all duration-300 hover:bg-sky-100 hover:text-[#151A2D]",
-                pathname === link.href && "bg-sky-100 text-blue-600",
+                pathname === link.href && "bg-sky-100",
                 isCollapsed && "justify-center"
               )}
             >

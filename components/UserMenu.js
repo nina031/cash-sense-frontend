@@ -72,7 +72,7 @@ export default function UserMenu() {
         aria-controls="user-menu"
       >
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium text-sm">
+          <div className="w-9 h-9 rounded-full bg-[var(--primary)] flex items-center justify-center text-white font-medium text-sm">
             {getUserInitials()}
           </div>
           <ChevronDown className="w-4 h-4 text-gray-500" />
