@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDemoMode } from "@/contexts/DemoContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const { login } = useAuth();
+  const { shouldActivateDemo, toggleDemoMode } = useDemoMode();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,6 +31,10 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Email ou mot de passe incorrect");
       } else {
+        // Si shouldActivateDemo est true, activer le mode démo avant de rediriger
+        if (shouldActivateDemo) {
+          await toggleDemoMode();
+        }
         router.push(callbackUrl);
       }
     } catch (err) {
@@ -38,6 +44,14 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  // Si nous sommes en mode shouldActivateDemo, afficher un message spécial
+  useEffect(() => {
+    if (shouldActivateDemo) {
+      setEmail("demo@example.com");
+      setPassword("demo123");
+    }
+  }, [shouldActivateDemo]);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row overflow-hidden">
@@ -124,6 +138,15 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md p-6">
           <h2 className="text-3xl font-bold mb-6 text-gray-800">Connexion</h2>
+
+          {shouldActivateDemo && (
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded">
+              <p className="text-amber-700">
+                Vous êtes sur le point d'entrer en mode démonstration. Des
+                données de test seront utilisées.
+              </p>
+            </div>
+          )}
 
           {error && (
             <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">

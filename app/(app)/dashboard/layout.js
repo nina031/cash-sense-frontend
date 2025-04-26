@@ -2,6 +2,7 @@
 
 import SideNav from "@/components/SideNav";
 import UserMenu from "@/components/UserMenu";
+import TestModeToggle from "@/components/TestModeToggle";
 import { useDemoMode } from "@/contexts/DemoContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Info } from "lucide-react";
@@ -19,23 +20,17 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="flex h-screen relative">
-      {/* Bouton de sortie du mode démo en position fixe en haut à droite */}
-      {isDemoMode && (
-        <button
-          onClick={handleExitDemo}
-          className="fixed top-4 right-10 z-50 flex items-center gap-2 bg-white border border-amber-200 text-amber-600 hover:bg-amber-50 px-3 py-2 rounded-full text-sm font-medium shadow-sm transition-colors"
-        >
-          <span>Quitter le mode démo</span>
-        </button>
-      )}
-
       {/* SideNav */}
       <SideNav />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col ml-[270px] transition-all duration-300">
         {/* Header with user menu */}
-        <header className="py-2 px-6 flex justify-end items-center">
+        <header className="py-2 px-6 flex justify-between items-center">
+          {/* Test Mode Toggle */}
+          <TestModeToggle />
+
+          {/* User Menu */}
           <UserMenu />
         </header>
 

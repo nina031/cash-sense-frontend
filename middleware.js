@@ -9,7 +9,13 @@ export async function middleware(request) {
     secret: process.env.NEXTAUTH_SECRET,
   });
 
-  // Vérifier si l'utilisateur est connecté ou si c'est une route publique
+  // Si l'utilisateur est connecté et tente d'accéder à la page d'accueil
+  if (token && request.nextUrl.pathname === "/") {
+    // Rediriger vers le dashboard s'il est déjà connecté
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // Si l'utilisateur n'est pas connecté et essaie d'accéder à des routes protégées
   if (!token) {
     // Routes nécessitant une authentification
     const isAuthRoute = request.nextUrl.pathname.startsWith("/dashboard");
@@ -27,5 +33,5 @@ export async function middleware(request) {
 
 // Configuration des chemins à vérifier
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/", "/dashboard/:path*"],
 };

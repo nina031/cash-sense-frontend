@@ -1,7 +1,21 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useDemoMode } from "@/contexts/DemoContext";
 
 export default function Home() {
+  const router = useRouter();
+  const { setShouldActivateDemo } = useDemoMode();
+
+  const handleTryDemo = () => {
+    // Définir l'état qui indique que le mode démo doit être activé après connexion
+    setShouldActivateDemo(true);
+    // Rediriger vers la page de connexion
+    router.push("/login");
+  };
+
   return (
     <div className="min-h-screen flex flex-col justify-center items-center p-6 sm:p-10">
       <main className="w-full max-w-4xl mx-auto py-10">
@@ -28,12 +42,12 @@ export default function Home() {
             </p>
 
             <div className="mb-8">
-              <Link
+              <button
                 className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white py-2 rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-6 inline-flex items-center justify-center"
-                href="/demo"
+                onClick={handleTryDemo}
               >
                 Try demo
-              </Link>
+              </button>
             </div>
           </div>
 
