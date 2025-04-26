@@ -28,17 +28,12 @@ const mainLinks = [
 export default function NavLinks({ isCollapsed = false }) {
   const pathname = usePathname();
   const { logout } = useAuth();
-  const { isDemoMode, deactivateDemoMode } = useDemoMode();
+  const { isDemoMode } = useDemoMode();
   const router = useRouter();
 
   // Fonction de déconnexion
   const handleLogout = async () => {
-    if (isDemoMode) {
-      deactivateDemoMode();
-      router.push("/");
-    } else {
-      await logout();
-    }
+    await logout();
   };
 
   // Liens utilitaires (en bas du menu)
@@ -47,7 +42,7 @@ export default function NavLinks({ isCollapsed = false }) {
     { name: "Paramètres", href: "/dashboard/account", icon: Settings },
     // Pour la déconnexion, on utilise une fonction au lieu d'un lien
     {
-      name: isDemoMode ? "Quitter le mode démo" : "Déconnexion",
+      name: "Déconnexion",
       onClick: handleLogout,
       icon: LogOut,
     },

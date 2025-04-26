@@ -10,7 +10,7 @@ import { useDemoMode } from "@/contexts/DemoContext";
 
 export default function UserMenu() {
   const { session, logout } = useAuth();
-  const { isDemoMode, deactivateDemoMode } = useDemoMode();
+  const { isDemoMode } = useDemoMode();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
@@ -53,12 +53,7 @@ export default function UserMenu() {
 
   // Handle logout
   const handleLogout = async () => {
-    if (isDemoMode) {
-      deactivateDemoMode();
-      router.push("/");
-    } else {
-      await logout();
-    }
+    await logout();
     setIsOpen(false);
   };
 
@@ -126,7 +121,7 @@ export default function UserMenu() {
               role="menuitem"
             >
               <LogOut className="w-4 h-4" />
-              {isDemoMode ? "Quitter le mode démo" : "Déconnexion"}
+              Déconnexion
             </button>
           </div>
         </div>
