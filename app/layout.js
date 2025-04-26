@@ -1,10 +1,10 @@
-// app/layout.js
 "use client";
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { DemoProvider } from "@/contexts/DemoContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SidebarProvider } from "@/contexts/SidebarContext";
 import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
@@ -25,7 +25,9 @@ export default function RootLayout({ children }) {
       >
         <SessionProvider>
           <AuthProvider>
-            <DemoProvider>{children}</DemoProvider>
+            <DemoProvider>
+              <SidebarProvider>{children}</SidebarProvider>
+            </DemoProvider>
           </AuthProvider>
         </SessionProvider>
       </body>

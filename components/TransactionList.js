@@ -1,5 +1,6 @@
 /**
  * Component to display a list of transactions
+ * Handles Plaid PRODUCT_NOT_READY errors with retry logic
  */
 import { useState, useEffect } from "react";
 import TransactionItem from "./TransactionItem";
@@ -17,7 +18,7 @@ export default function TransactionList({ accessToken }) {
   const effectiveToken = isDemoMode ? demoAccessToken : accessToken;
 
   useEffect(() => {
-    // Reset states and track token change timestamp
+    // Reset states and track token change timestamp when token changes
     if (effectiveToken) {
       setLastTokenChange(Date.now());
       setRetryCount(0);
@@ -44,16 +45,28 @@ export default function TransactionList({ accessToken }) {
           await new Promise((resolve) => setTimeout(resolve, 2000));
         }
 
-        // Import the service dynamically
-        const { getTransactions } = await import(
-          "@/services/transactionService"
+        const response = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+          }/api/get_transactions`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ access_token: effectiveToken }),
+          }
         );
 
-        // Fetch transactions using the service
-        const data = await getTransactions(effectiveToken);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to fetch transactions");
+        }
+
+        const data = await response.json();
 
         // Sort transactions by date (most recent first)
-        const sortedTransactions = data.sort(
+        const sortedTransactions = data.transactions.sort(
           (a, b) => new Date(b.date) - new Date(a.date)
         );
 
@@ -103,8 +116,8 @@ export default function TransactionList({ accessToken }) {
         <p className="mt-2 text-gray-600">Chargement des transactions...</p>
         {retryCount > 0 && (
           <p className="mt-2 text-amber-600">
-            Les données de démo sont en cours de préparation. Tentative{" "}
-            {retryCount}/3...
+            Les données sont en cours de préparation. Tentative {retryCount}
+            /3...
           </p>
         )}
       </div>

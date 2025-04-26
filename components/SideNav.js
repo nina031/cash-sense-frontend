@@ -6,22 +6,10 @@ import Image from "next/image";
 import NavLinks from "@/components/NavLinks";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSidebar } from "@/contexts/SidebarContext";
 
 export default function SideNav({ isDemoMode = false }) {
-  // Déplacer l'état initial à undefined pour éviter les erreurs d'hydratation
-  const [isCollapsed, setIsCollapsed] = useState(undefined);
-  const [isMounted, setIsMounted] = useState(false);
-
-  // N'initialiser l'état qu'après le montage côté client
-  useEffect(() => {
-    setIsCollapsed(false);
-    setIsMounted(true);
-  }, []);
-
-  // Toggle SideNav's collapsed state
-  const toggleSideNav = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+  const { isCollapsed, toggleSidebar, isMounted } = useSidebar();
 
   // Ne rien rendre pendant l'hydratation
   if (!isMounted) {
@@ -35,6 +23,7 @@ export default function SideNav({ isDemoMode = false }) {
 
   return (
     <div
+      data-sidebar
       className={cn(
         "fixed transition-all duration-300 bg-white rounded-2xl m-4 shadow-lg border border-gray-100 flex flex-col",
         isCollapsed ? "w-[85px]" : "w-[270px]",
@@ -75,7 +64,7 @@ export default function SideNav({ isDemoMode = false }) {
         {/* Toggle button - Only visible when not collapsed */}
         {!isCollapsed && (
           <button
-            onClick={toggleSideNav}
+            onClick={toggleSidebar}
             className="h-[35px] w-[35px] flex items-center justify-center bg-gray-100 text-gray-600 rounded-lg transition-all duration-300 hover:bg-gray-200"
             aria-label="Replier le menu"
           >
@@ -88,7 +77,7 @@ export default function SideNav({ isDemoMode = false }) {
       {isCollapsed && (
         <div className="flex justify-center mt-4 mb-2">
           <button
-            onClick={toggleSideNav}
+            onClick={toggleSidebar}
             className="h-[35px] w-[35px] flex items-center justify-center bg-gray-100 text-gray-600 rounded-lg transition-all duration-300 hover:bg-gray-200"
             aria-label="Déplier le menu"
           >

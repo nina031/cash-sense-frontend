@@ -6,11 +6,13 @@ import TestModeToggle from "@/components/TestModeToggle";
 import { useDemoMode } from "@/contexts/DemoContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { useSidebar } from "@/contexts/SidebarContext";
 
 export default function DashboardLayout({ children }) {
   const { isDemoMode, deactivateDemoMode } = useDemoMode();
   const { session } = useAuth();
   const router = useRouter();
+  const { isCollapsed, isMounted } = useSidebar();
 
   const handleExitDemo = () => {
     deactivateDemoMode();
@@ -25,8 +27,8 @@ export default function DashboardLayout({ children }) {
           <div className="flex items-center">
             <span className="font-medium px-4">Test mode</span>
             <span className="flex-1 text-center">
-              Vous utilisez des données de test. L'argent réel ne sera pas
-              déplacé.
+              Vous utilisez des données de test. Les données réelles ne seront
+              pas chargées.
             </span>
           </div>
         </div>
@@ -36,8 +38,16 @@ export default function DashboardLayout({ children }) {
         {/* SideNav - Passer isDemoMode pour ajuster la hauteur */}
         <SideNav isDemoMode={isDemoMode} />
 
-        {/* Main Content - Ajuster le margin-left */}
-        <div className="flex-1 flex flex-col ml-[270px] transition-all duration-300">
+        {/* Main Content - Ajuster dynamiquement le margin-left */}
+        <div
+          className={`flex-1 flex flex-col transition-all duration-300 ${
+            isMounted
+              ? isCollapsed
+                ? "ml-[85px]"
+                : "ml-[270px]"
+              : "ml-[270px]"
+          }`}
+        >
           {/* Header with user menu */}
           <header className="py-2 px-6 flex justify-between items-center">
             {/* Test Mode Toggle */}
