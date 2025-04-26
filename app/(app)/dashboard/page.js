@@ -18,10 +18,10 @@ export default function DashboardPage() {
             activité bancaire.
           </p>
           <Link
-            href="/dashboard/transactions"
+            href="/dashboard/analyse"
             className="text-blue-600 hover:text-blue-800 font-medium"
           >
-            Voir mes transactions →
+            Analyser mes dépenses →
           </Link>
         </div>
 

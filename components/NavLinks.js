@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   LogOut,
   HelpCircle,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,7 +21,11 @@ import { useRouter } from "next/navigation";
 // Définition des liens de navigation principaux
 const mainLinks = [
   { name: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Transactions", href: "/dashboard/transactions", icon: CreditCard },
+  {
+    name: "Analyse",
+    href: "/dashboard/analyse",
+    icon: ChartNoAxesCombined,
+  },
   { name: "Budgets", href: "/dashboard/budgets", icon: PieChart },
   { name: "Objectifs", href: "/dashboard/goals", icon: Goal },
 ];
