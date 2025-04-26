@@ -32,7 +32,7 @@ export default function TestModeToggle() {
 
   return (
     <div className="flex items-center space-x-1">
-      <span className="text-sm text-gray-700 mr-2">Test mode</span>
+      <span className="text-sm text-gray-700 mr-2 ml-8">Test mode</span>
 
       <button
         onClick={handleToggle}

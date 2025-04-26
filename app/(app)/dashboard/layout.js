@@ -49,7 +49,7 @@ export default function DashboardLayout({ children }) {
           }`}
         >
           {/* Header with user menu */}
-          <header className="py-2 px-6 flex justify-between items-center">
+          <header className="py-4 px-6 flex justify-between items-center">
             {/* Test Mode Toggle */}
             <TestModeToggle />
 
