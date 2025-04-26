@@ -3,7 +3,7 @@
  */
 
 // Use environment variables from .env.local
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 const ENV_MODE = process.env.NEXT_PUBLIC_ENV_MODE;
 
 /**
@@ -29,12 +29,6 @@ export async function getTransactions(accessToken) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Error response:", errorText);
-
-      // Check if the error is PRODUCT_NOT_READY
-      if (errorText.includes("PRODUCT_NOT_READY")) {
-        throw new Error("TRANSACTIONS_NOT_READY");
-      }
-
       throw new Error(
         `Error fetching transactions: ${response.status}. Details: ${errorText}`
       );

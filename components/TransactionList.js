@@ -10,10 +10,19 @@ export default function TransactionList({ accessToken }) {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isDataPending, setIsDataPending] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [lastTokenChange, setLastTokenChange] = useState(Date.now());
 
   // Utiliser le token approprié (celui du mode démo ou celui passé en props)
   const effectiveToken = isDemoMode ? demoAccessToken : accessToken;
+
+  useEffect(() => {
+    // Reset states and track token change timestamp
+    if (effectiveToken) {
+      setLastTokenChange(Date.now());
+      setRetryCount(0);
+    }
+  }, [effectiveToken]);
 
   useEffect(() => {
     // Only try to fetch transactions if we have an access token
@@ -22,10 +31,20 @@ export default function TransactionList({ accessToken }) {
       return;
     }
 
+    setLoading(true);
+    setError(null);
+
     // Function to fetch transactions
     async function fetchTransactions() {
       try {
-        // Import the service to avoid issues with Next.js SSR
+        // If this is a fresh token (less than 5 seconds old), add initial delay
+        const timeSinceTokenChange = Date.now() - lastTokenChange;
+        if (retryCount === 0 && timeSinceTokenChange < 5000) {
+          // Add small initial delay for demo mode to allow Plaid to process
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+
+        // Import the service dynamically
         const { getTransactions } = await import(
           "@/services/transactionService"
         );
@@ -40,28 +59,41 @@ export default function TransactionList({ accessToken }) {
 
         setTransactions(sortedTransactions);
         setLoading(false);
-        setIsDataPending(false);
       } catch (err) {
         console.error("Failed to fetch transactions:", err);
 
-        // Check for the specific "transactions not ready" error
-        if (err.message === "TRANSACTIONS_NOT_READY") {
-          setIsDataPending(true);
+        // Check if error contains "PRODUCT_NOT_READY" and retry with delay
+        if (
+          err.message &&
+          err.message.includes("PRODUCT_NOT_READY") &&
+          retryCount < 3
+        ) {
+          setRetryCount((prevCount) => prevCount + 1);
+
+          // Retry after increasing delay (exponential backoff)
+          const delay = 2000 * Math.pow(2, retryCount);
+          console.log(`Retrying in ${delay}ms (attempt ${retryCount + 1}/3)`);
+
           setError(
-            "Les données de transactions sont en cours de préparation. Veuillez patienter quelques instants et rafraîchir la page."
+            `Préparation des données... Nouvelle tentative dans ${
+              delay / 1000
+            } secondes`
           );
+
+          setTimeout(() => {
+            fetchTransactions();
+          }, delay);
         } else {
           setError(
             "Impossible de récupérer les transactions. Veuillez réessayer plus tard."
           );
+          setLoading(false);
         }
-
-        setLoading(false);
       }
     }
 
     fetchTransactions();
-  }, [effectiveToken]); // Re-fetch when effectiveToken changes
+  }, [effectiveToken, retryCount, lastTokenChange]); // Include dependencies
 
   // Show loading state
   if (loading) {
@@ -69,29 +101,18 @@ export default function TransactionList({ accessToken }) {
       <div className="p-4 text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
         <p className="mt-2 text-gray-600">Chargement des transactions...</p>
-      </div>
-    );
-  }
-
-  // Show "data pending" message
-  if (isDataPending) {
-    return (
-      <div className="p-4 text-center">
-        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
-          <p className="text-yellow-700">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
-          >
-            Rafraîchir
-          </button>
-        </div>
+        {retryCount > 0 && (
+          <p className="mt-2 text-amber-600">
+            Les données de démo sont en cours de préparation. Tentative{" "}
+            {retryCount}/3...
+          </p>
+        )}
       </div>
     );
   }
 
   // Show error message
-  if (error && !isDataPending) {
+  if (error) {
     return (
       <div className="p-4 text-center text-red-500">
         <p>{error}</p>
