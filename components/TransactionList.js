@@ -10,6 +10,7 @@ export default function TransactionList({ accessToken }) {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDataPending, setIsDataPending] = useState(false);
 
   // Utiliser le token approprié (celui du mode démo ou celui passé en props)
   const effectiveToken = isDemoMode ? demoAccessToken : accessToken;
@@ -39,11 +40,22 @@ export default function TransactionList({ accessToken }) {
 
         setTransactions(sortedTransactions);
         setLoading(false);
+        setIsDataPending(false);
       } catch (err) {
         console.error("Failed to fetch transactions:", err);
-        setError(
-          "Impossible de récupérer les transactions. Veuillez réessayer plus tard."
-        );
+
+        // Check for the specific "transactions not ready" error
+        if (err.message === "TRANSACTIONS_NOT_READY") {
+          setIsDataPending(true);
+          setError(
+            "Les données de transactions sont en cours de préparation. Veuillez patienter quelques instants et rafraîchir la page."
+          );
+        } else {
+          setError(
+            "Impossible de récupérer les transactions. Veuillez réessayer plus tard."
+          );
+        }
+
         setLoading(false);
       }
     }
@@ -61,8 +73,25 @@ export default function TransactionList({ accessToken }) {
     );
   }
 
+  // Show "data pending" message
+  if (isDataPending) {
+    return (
+      <div className="p-4 text-center">
+        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
+          <p className="text-yellow-700">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+          >
+            Rafraîchir
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Show error message
-  if (error) {
+  if (error && !isDataPending) {
     return (
       <div className="p-4 text-center text-red-500">
         <p>{error}</p>

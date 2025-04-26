@@ -5,7 +5,6 @@ import UserMenu from "@/components/UserMenu";
 import TestModeToggle from "@/components/TestModeToggle";
 import { useDemoMode } from "@/contexts/DemoContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { Info } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({ children }) {
@@ -19,34 +18,37 @@ export default function DashboardLayout({ children }) {
   };
 
   return (
-    <div className="flex h-screen relative">
-      {/* SideNav */}
-      <SideNav />
+    <div className="flex flex-col h-screen relative">
+      {/* Bannière de notification du mode démo - pleine largeur */}
+      {isDemoMode && (
+        <div className="bg-[#9163cb] text-white py-2 w-full">
+          <div className="flex items-center">
+            <span className="font-medium px-4">Test mode</span>
+            <span className="flex-1 text-center">
+              Vous utilisez des données de test. L'argent réel ne sera pas
+              déplacé.
+            </span>
+          </div>
+        </div>
+      )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col ml-[270px] transition-all duration-300">
-        {/* Header with user menu */}
-        <header className="py-2 px-6 flex justify-between items-center">
-          {/* Test Mode Toggle */}
-          <TestModeToggle />
+      <div className="flex flex-1 overflow-hidden">
+        {/* SideNav - Passer isDemoMode pour ajuster la hauteur */}
+        <SideNav isDemoMode={isDemoMode} />
 
-          {/* User Menu */}
-          <UserMenu />
-        </header>
+        {/* Main Content - Ajuster le margin-left */}
+        <div className="flex-1 flex flex-col ml-[270px] transition-all duration-300">
+          {/* Header with user menu */}
+          <header className="py-2 px-6 flex justify-between items-center">
+            {/* Test Mode Toggle */}
+            <TestModeToggle />
 
-        <main className="flex-1 p-6 overflow-y-auto">
-          {/* Bannière de notification du mode démo */}
-          {isDemoMode && (
-            <div className="mb-6 max-w-110 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg flex items-center h-4 rounded">
-              <Info className="w-5 h-5 text-yellow-500 mr-3 flex-shrink-0" />
-              <p className="text-yellow-800 text-sm">
-                Vous êtes actuellement en mode démo avec des données simulées.
-              </p>
-            </div>
-          )}
+            {/* User Menu */}
+            <UserMenu />
+          </header>
 
-          {children}
-        </main>
+          <main className="flex-1 p-6 overflow-y-auto">{children}</main>
+        </div>
       </div>
     </div>
   );

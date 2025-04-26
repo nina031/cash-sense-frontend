@@ -7,7 +7,7 @@ import NavLinks from "@/components/NavLinks";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function SideNav() {
+export default function SideNav({ isDemoMode = false }) {
   // Déplacer l'état initial à undefined pour éviter les erreurs d'hydratation
   const [isCollapsed, setIsCollapsed] = useState(undefined);
   const [isMounted, setIsMounted] = useState(false);
@@ -28,12 +28,17 @@ export default function SideNav() {
     return <div className="fixed w-[270px] h-[calc(100vh-2rem)] m-4"></div>;
   }
 
+  // Ajustement de la classe de hauteur en fonction du mode démo
+  const heightClass = isDemoMode
+    ? "h-[calc(100vh-2rem-32px)]" // Soustraire la hauteur de la bannière (32px environ pour py-2)
+    : "h-[calc(100vh-2rem)]";
+
   return (
     <div
       className={cn(
         "fixed transition-all duration-300 bg-white rounded-2xl m-4 shadow-lg border border-gray-100 flex flex-col",
         isCollapsed ? "w-[85px]" : "w-[270px]",
-        "h-[calc(100vh-2rem)]"
+        heightClass // Utiliser la classe de hauteur dynamique
       )}
     >
       {/* SideNav Header */}

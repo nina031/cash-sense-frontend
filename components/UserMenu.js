@@ -6,19 +6,15 @@ import Link from "next/link";
 import { LogOut, Settings, HelpCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { useDemoMode } from "@/contexts/DemoContext";
 
 export default function UserMenu() {
   const { session, logout } = useAuth();
-  const { isDemoMode } = useDemoMode();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
   // Get user initials from name or email
   const getUserInitials = () => {
-    if (isDemoMode) return "DM"; // Demo Mode
-
     if (!session?.user) return "??";
 
     if (session.user.name) {
@@ -84,11 +80,9 @@ export default function UserMenu() {
           {/* User info section */}
           <div className="p-3 border-b border-gray-100">
             <p className="text-sm font-medium text-gray-900">
-              {isDemoMode
-                ? "Mode Démo"
-                : session?.user?.name || session?.user?.email || "Utilisateur"}
+              {session?.user?.name || session?.user?.email || "Utilisateur"}
             </p>
-            {session?.user?.email && !isDemoMode && (
+            {session?.user?.email && (
               <p className="text-xs text-gray-500 mt-1">{session.user.email}</p>
             )}
           </div>

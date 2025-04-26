@@ -29,6 +29,12 @@ export async function getTransactions(accessToken) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Error response:", errorText);
+
+      // Check if the error is PRODUCT_NOT_READY
+      if (errorText.includes("PRODUCT_NOT_READY")) {
+        throw new Error("TRANSACTIONS_NOT_READY");
+      }
+
       throw new Error(
         `Error fetching transactions: ${response.status}. Details: ${errorText}`
       );

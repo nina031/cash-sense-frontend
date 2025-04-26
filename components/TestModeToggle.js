@@ -39,7 +39,7 @@ export default function TestModeToggle() {
         disabled={isLoading}
         className={cn(
           "relative flex items-center w-10 h-5 rounded-full transition-colors duration-300",
-          isDemoMode ? "bg-yellow-400" : "bg-gray-300"
+          isDemoMode ? "bg-[var(--primary)]" : "bg-gray-300"
         )}
         aria-label="Toggle demo mode"
       >
