@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useDemoMode } from "@/contexts/DemoContext";
+import { cn } from "@/lib/utils";
 
 export default function TestModeToggle() {
   const { isDemoMode, toggleDemoMode } = useDemoMode();
@@ -30,25 +31,27 @@ export default function TestModeToggle() {
   }
 
   return (
-    <div className="flex items-center">
-      <span className="mr-2 text-sm font-medium text-gray-700">Test mode</span>
-      <div className="relative inline-block w-12 align-middle select-none">
-        <button
-          onClick={handleToggle}
-          disabled={isLoading}
-          className={`absolute block w-6 h-6 rounded-full transition-transform duration-200 ease-in ${
-            isDemoMode
-              ? "bg-white transform translate-x-6 shadow-md"
-              : "bg-white shadow-md"
-          }`}
-          style={{ top: "2px", left: "2px" }}
-        />
+    <div className="flex items-center space-x-1">
+      <span className="text-sm text-gray-700 mr-2">Test mode</span>
+
+      <button
+        onClick={handleToggle}
+        disabled={isLoading}
+        className={cn(
+          "relative flex items-center w-10 h-5 rounded-full transition-colors duration-300",
+          isDemoMode ? "bg-yellow-400" : "bg-gray-300"
+        )}
+        aria-label="Toggle demo mode"
+      >
+        {/* Cercle de l'interrupteur */}
         <span
-          className={`block h-10 w-16 rounded-full transition-colors duration-200 ease-in ${
-            isDemoMode ? "bg-red-500" : "bg-gray-300"
-          }`}
+          className={cn(
+            "absolute w-4 h-4 bg-white rounded-full shadow-sm transform transition-transform duration-300",
+            isDemoMode ? "translate-x-5" : "translate-x-0.5"
+          )}
         />
-      </div>
+      </button>
+
       {isLoading && (
         <div className="ml-2">
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
