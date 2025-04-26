@@ -1,20 +1,21 @@
 /**
  * Component to display a list of transactions
- * Handles Plaid PRODUCT_NOT_READY errors with retry logic
+ * Handles filtering by transaction type and month
  */
 import { useState, useEffect } from "react";
 import TransactionItem from "./TransactionItem";
 import { useDemoMode } from "@/contexts/DemoContext";
 
-export default function TransactionList({ accessToken }) {
+export default function TransactionList({ accessToken, filter }) {
   const { isDemoMode, demoAccessToken } = useDemoMode();
   const [transactions, setTransactions] = useState([]);
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
   const [lastTokenChange, setLastTokenChange] = useState(Date.now());
 
-  // Utiliser le token approprié (celui du mode démo ou celui passé en props)
+  // Use the appropriate token (demo mode token or the one passed in props)
   const effectiveToken = isDemoMode ? demoAccessToken : accessToken;
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function TransactionList({ accessToken }) {
     }
   }, [effectiveToken]);
 
+  // Fetch transactions from API
   useEffect(() => {
     // Only try to fetch transactions if we have an access token
     if (!effectiveToken) {
@@ -106,7 +108,63 @@ export default function TransactionList({ accessToken }) {
     }
 
     fetchTransactions();
-  }, [effectiveToken, retryCount, lastTokenChange]); // Include dependencies
+  }, [effectiveToken, retryCount, lastTokenChange]);
+
+  // Apply filters whenever transactions or filter props change
+  useEffect(() => {
+    if (!transactions.length) {
+      setFilteredTransactions([]);
+      return;
+    }
+
+    let result = [...transactions];
+
+    // Filter by transaction type (expenses or income)
+    if (filter?.type) {
+      // In Plaid, positive amounts are expenses and negative are income
+      if (filter.type === "Dépenses") {
+        result = result.filter((t) => t.amount > 0);
+      } else if (filter.type === "Revenus") {
+        result = result.filter((t) => t.amount < 0);
+      }
+    }
+
+    // Filter by month
+    if (filter?.month) {
+      // Extract month and year from filter.month (e.g., "Avril 2025")
+      const parts = filter.month.split(" ");
+      let monthName = parts[0];
+      const year =
+        parts.length > 1 ? parseInt(parts[1]) : new Date().getFullYear();
+
+      // Map French month names to numbers (0-11)
+      const monthMap = {
+        Janvier: 0,
+        Février: 1,
+        Mars: 2,
+        Avril: 3,
+        Mai: 4,
+        Juin: 5,
+        Juillet: 6,
+        Août: 7,
+        Septembre: 8,
+        Octobre: 9,
+        Novembre: 10,
+        Décembre: 11,
+      };
+
+      const monthNumber = monthMap[monthName];
+
+      if (monthNumber !== undefined) {
+        result = result.filter((t) => {
+          const date = new Date(t.date);
+          return date.getMonth() === monthNumber && date.getFullYear() === year;
+        });
+      }
+    }
+
+    setFilteredTransactions(result);
+  }, [transactions, filter]);
 
   // Show loading state
   if (loading) {
@@ -146,10 +204,10 @@ export default function TransactionList({ accessToken }) {
   }
 
   // Show message when no transactions are found
-  if (transactions.length === 0) {
+  if (filteredTransactions.length === 0) {
     return (
       <div className="p-4 text-center text-gray-600">
-        <p>Aucune transaction trouvée pour la période sélectionnée.</p>
+        <p>Aucune transaction trouvée pour les critères sélectionnés.</p>
       </div>
     );
   }
@@ -157,9 +215,11 @@ export default function TransactionList({ accessToken }) {
   // Render the list of transactions
   return (
     <div className="space-y-2">
-      <h2 className="text-xl font-bold mb-4">Transactions récentes</h2>
+      <h2 className="text-xl font-bold mb-4">
+        {filter?.type || "Transactions"} - {filter?.month || "Tous les mois"}
+      </h2>
       <div className="divide-y divide-gray-200">
-        {transactions.map((transaction) => (
+        {filteredTransactions.map((transaction) => (
           <TransactionItem key={transaction.id} transaction={transaction} />
         ))}
       </div>
