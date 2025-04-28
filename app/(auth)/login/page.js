@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDemoMode } from "@/contexts/DemoContext";
 
-export default function LoginPage() {
+// Composant qui utilise useSearchParams
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -19,6 +20,14 @@ export default function LoginPage() {
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const { login } = useAuth();
   const { shouldActivateDemo, toggleDemoMode } = useDemoMode();
+
+  // Si nous sommes en mode shouldActivateDemo, afficher un message spécial
+  useEffect(() => {
+    if (shouldActivateDemo) {
+      setEmail("demo@example.com");
+      setPassword("demo123");
+    }
+  }, [shouldActivateDemo]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,14 +54,148 @@ export default function LoginPage() {
     }
   };
 
-  // Si nous sommes en mode shouldActivateDemo, afficher un message spécial
-  useEffect(() => {
-    if (shouldActivateDemo) {
-      setEmail("demo@example.com");
-      setPassword("demo123");
-    }
-  }, [shouldActivateDemo]);
+  return (
+    <div className="flex-1 flex items-center justify-center p-6">
+      <div className="w-full max-w-md p-6">
+        <h2 className="text-3xl font-bold mb-6 text-gray-800">Connexion</h2>
 
+        {shouldActivateDemo && (
+          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded">
+            <p className="text-amber-700">
+              Vous êtes sur le point d'entrer en mode démonstration. Des données
+              de test seront utilisées.
+            </p>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
+            <p className="text-red-700">{error}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Champ email */}
+          <div className="relative">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              placeholder="Votre email"
+              className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Champ mot de passe */}
+          <div className="relative">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Mot de passe
+            </label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Votre mot de passe"
+              className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Options de connexion */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="remember-me"
+                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
+              />
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-sm text-gray-700"
+              >
+                Se souvenir de moi
+              </label>
+            </div>
+            <div className="text-sm">
+              <Link
+                href="/forgot-password"
+                className="text-[#613dc1] hover:text-purple-600"
+              >
+                Mot de passe oublié?
+              </Link>
+            </div>
+          </div>
+
+          {/* Bouton de connexion */}
+          <div>
+            <button
+              type="submit"
+              className="w-full py-3 bg-[#613dc1] hover:bg-purple-700 text-white rounded-lg flex items-center justify-center"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="flex items-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Connexion en cours...
+                </span>
+              ) : (
+                "Se connecter"
+              )}
+            </button>
+          </div>
+
+          {/* Lien de création de compte */}
+          <div className="text-center mt-4">
+            <p className="text-sm text-gray-600">
+              Nouveau sur Cash Sense?{" "}
+              <Link
+                href="/signup"
+                className="text-[#613dc1] hover:text-purple-600 font-medium"
+              >
+                Créer un compte
+              </Link>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row overflow-hidden">
       {/* Côté gauche - Partie violette avec graphiques */}
@@ -135,143 +278,15 @@ export default function LoginPage() {
       </div>
 
       {/* Côté droit - Formulaire de connexion */}
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md p-6">
-          <h2 className="text-3xl font-bold mb-6 text-gray-800">Connexion</h2>
-
-          {shouldActivateDemo && (
-            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded">
-              <p className="text-amber-700">
-                Vous êtes sur le point d&apos;entrer en mode démonstration. Des
-                données de test seront utilisées.
-              </p>
-            </div>
-          )}
-
-          {error && (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
-              <p className="text-red-700">{error}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Champ email */}
-            <div className="relative">
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                placeholder="Votre email"
-                className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            {/* Champ mot de passe */}
-            <div className="relative">
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Mot de passe
-              </label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Votre mot de passe"
-                className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            {/* Options de connexion */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="remember-me"
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                  checked={rememberMe}
-                  onChange={() => setRememberMe(!rememberMe)}
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-700"
-                >
-                  Se souvenir de moi
-                </label>
-              </div>
-              <div className="text-sm">
-                <Link
-                  href="/forgot-password"
-                  className="text-[#613dc1] hover:text-purple-600"
-                >
-                  Mot de passe oublié?
-                </Link>
-              </div>
-            </div>
-
-            {/* Bouton de connexion */}
-            <div>
-              <button
-                type="submit"
-                className="w-full py-3 bg-[#613dc1] hover:bg-purple-700 text-white rounded-lg flex items-center justify-center"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <span className="flex items-center">
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Connexion en cours...
-                  </span>
-                ) : (
-                  "Se connecter"
-                )}
-              </button>
-            </div>
-
-            {/* Lien de création de compte */}
-            <div className="text-center mt-4">
-              <p className="text-sm text-gray-600">
-                Nouveau sur Cash Sense?{" "}
-                <Link
-                  href="/signup"
-                  className="text-[#613dc1] hover:text-purple-600 font-medium"
-                >
-                  Créer un compte
-                </Link>
-              </p>
-            </div>
-          </form>
-        </div>
-      </div>
+      <Suspense
+        fallback={
+          <div className="flex-1 flex items-center justify-center p-6">
+            Chargement...
+          </div>
+        }
+      >
+        <LoginForm />
+      </Suspense>
     </div>
   );
 }
