@@ -62,8 +62,8 @@ function LoginForm() {
         {shouldActivateDemo && (
           <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded">
             <p className="text-amber-700">
-              Vous êtes sur le point d'entrer en mode démonstration. Des données
-              de test seront utilisées.
+              Vous êtes sur le point d&apos;entrer en mode démonstration. Des
+              données de test seront utilisées.
             </p>
           </div>
         )}
