@@ -56,7 +56,7 @@ export default function TransactionList({ accessToken, filter }) {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ access_token: effectiveToken }),
+            body: JSON.stringify({ access_token: effectiveToken, days: 90 }),
           }
         );
 
@@ -71,6 +71,8 @@ export default function TransactionList({ accessToken, filter }) {
         const sortedTransactions = data.transactions.sort(
           (a, b) => new Date(b.date) - new Date(a.date)
         );
+
+        console.log("test", sortedTransactions.length);
 
         setTransactions(sortedTransactions);
         setLoading(false);
