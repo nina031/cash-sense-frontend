@@ -14,9 +14,9 @@ export default function HelpPage() {
             Retour au tableau de bord
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">Centre d'aide</h1>
+        <h1 className="text-3xl font-bold">Centre d&apos;aide</h1>
         <p className="text-gray-600 mt-2">
-          Comment pouvons-nous vous aider aujourd'hui ?
+          Comment pouvons-nous vous aider aujourd&apos;hui ?
         </p>
       </div>
 
@@ -58,7 +58,7 @@ export default function HelpPage() {
             </li>
             <li>
               <a href="#" className="hover:underline">
-                Gestion des objectifs d'épargne
+                Gestion des objectifs d&apos;épargne
               </a>
             </li>
             <li>
@@ -154,11 +154,11 @@ export default function HelpPage() {
 
       <div className="bg-indigo-50 p-6 rounded-lg border border-indigo-100">
         <h2 className="text-lg font-semibold mb-3">
-          Besoin d'aide supplémentaire ?
+          Besoin d&apos;aide supplémentaire ?
         </h2>
         <p className="text-gray-700 mb-4">
-          Notre équipe d'assistance est là pour vous aider. N'hésitez pas à nous
-          contacter.
+          Notre équipe d&apos;assistance est là pour vous aider. N&apos;hésitez
+          pas à nous contacter.
         </p>
         <Button className="bg-indigo-600 hover:bg-indigo-700">
           Contacter le support

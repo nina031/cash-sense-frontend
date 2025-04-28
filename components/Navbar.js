@@ -57,7 +57,7 @@ export default function Navbar() {
                   asChild
                   className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-full"
                 >
-                  <Link href="/signup">S'inscrire</Link>
+                  <Link href="/signup">S&apos;inscrire</Link>
                 </Button>
               </>
             )}
@@ -68,7 +68,7 @@ export default function Navbar() {
                 asChild
                 className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-full"
               >
-                <Link href="/">Retour à l'accueil</Link>
+                <Link href="/">Retour à l&apos;accueil</Link>
               </Button>
             )}
           </div>
