@@ -9,6 +9,7 @@ export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
+      secret: process.env.NEXTAUTH_SECRET,
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
