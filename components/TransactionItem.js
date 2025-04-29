@@ -16,7 +16,7 @@ export default function TransactionItem({ transaction }) {
   const formatAmount = (amount) => {
     // Plaid returns positive values for outflows (spending)
     // We convert to negative for better user understanding
-    const value = amount > 0 ? -amount : amount;
+    const value = -amount;
     return new Intl.NumberFormat("fr-FR", {
       style: "currency",
       currency: "EUR",
@@ -25,7 +25,7 @@ export default function TransactionItem({ transaction }) {
 
   // Determine the CSS class for the amount (red for spending, green for income)
   const getAmountClass = (amount) => {
-    return amount > 0 ? "text-red-600" : "text-green-600";
+    return amount > 0 ? "text-gray-800" : "text-green-600";
   };
 
   return (
