@@ -56,7 +56,7 @@ export default function TransactionList({ accessToken, filter }) {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ access_token: effectiveToken, days: 90 }),
+            body: JSON.stringify({ access_token: effectiveToken, days: 240 }),
           }
         );
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useDemoMode } from "@/contexts/DemoContext";
 import TransactionList from "@/components/TransactionList";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -123,7 +123,7 @@ export default function TransactionsPage() {
                   }`}
                 >
                   <span>{month}</span>
-                  {selectedMonth === month && <ChevronRight size={16} />}
+                  {selectedMonth === month}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -149,7 +149,7 @@ export default function TransactionsPage() {
                   }`}
                 >
                   <span>{year}</span>
-                  {selectedYear === year && <ChevronRight size={16} />}
+                  {selectedYear === year}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
