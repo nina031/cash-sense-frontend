@@ -1,19 +1,13 @@
 /**
  * Displays a single transaction with icon, details and amount
  */
+import React from "react";
+import { HelpCircle } from "lucide-react";
 import {
-  CreditCard,
-  ShoppingCart,
-  Utensils,
-  Plane,
-  Train,
-  Bus,
-  HelpCircle,
-  Beer,
-  PiggyBank,
-  Building,
-  MessageCircle,
-} from "lucide-react";
+  findCategoryByTransaction,
+  getCategoryIcon,
+  getCategoryBackgroundColor,
+} from "@/utils/categoryUtils";
 
 export default function TransactionItem({ transaction, showCheckbox = false }) {
   // Format the amount (negative for expenses, positive for income)
@@ -25,86 +19,26 @@ export default function TransactionItem({ transaction, showCheckbox = false }) {
     }).format(Math.abs(amount));
   };
 
-  // Get icon and color based on category or transaction type
-  const getCategoryIconAndColor = () => {
-    // Get main category or transaction name
-    const mainCategory = Array.isArray(transaction.category)
-      ? transaction.category[0]
-      : typeof transaction.category === "string"
-      ? transaction.category
-      : "";
-
+  // Get category information based on transaction data
+  const getCategoryInfo = () => {
     const name = transaction.name || "";
+    // Trouver la catégorie appropriée basée sur les données de la transaction
+    const category = findCategoryByTransaction(name, transaction.category);
 
-    // Check transaction name first for specific keywords
-    if (
-      name.toLowerCase().includes("vir") ||
-      name.toLowerCase().includes("virement")
-    ) {
-      return { icon: <PiggyBank size={20} />, color: "bg-green-500" };
-    }
-    if (name.toLowerCase().includes("carte")) {
-      // Check subcategories for card transactions
-      if (
-        mainCategory.toLowerCase().includes("restaurant") ||
-        mainCategory.toLowerCase().includes("food") ||
-        name.toLowerCase().includes("restaurant") ||
-        name.toLowerCase().includes("amazone") ||
-        name.toLowerCase().includes("bar")
-      ) {
-        return { icon: <Utensils size={20} />, color: "bg-rose-500" };
-      } else if (
-        mainCategory.toLowerCase().includes("health") ||
-        mainCategory.toLowerCase().includes("santé") ||
-        mainCategory.toLowerCase().includes("optique") ||
-        name.toLowerCase().includes("optique")
-      ) {
-        return { icon: <MessageCircle size={20} />, color: "bg-lime-500" };
-      } else {
-        return { icon: <CreditCard size={20} />, color: "bg-gray-500" };
-      }
-    }
+    // Obtenir l'icône pour cette catégorie
+    const IconComponent = category.icon || HelpCircle;
 
-    // Then check category
-    if (
-      mainCategory.toLowerCase().includes("restaurant") ||
-      mainCategory.toLowerCase().includes("food")
-    ) {
-      return { icon: <Utensils size={20} />, color: "bg-rose-500" };
-    } else if (
-      mainCategory.toLowerCase().includes("shop") ||
-      mainCategory.toLowerCase().includes("store")
-    ) {
-      return { icon: <ShoppingCart size={20} />, color: "bg-orange-500" };
-    } else if (mainCategory.toLowerCase().includes("transport")) {
-      return { icon: <Bus size={20} />, color: "bg-blue-500" };
-    } else if (
-      mainCategory.toLowerCase().includes("train") ||
-      name.toLowerCase().includes("sncf")
-    ) {
-      return { icon: <Train size={20} />, color: "bg-amber-500" };
-    } else if (
-      mainCategory.toLowerCase().includes("air") ||
-      name.toLowerCase().includes("flight")
-    ) {
-      return { icon: <Plane size={20} />, color: "bg-purple-500" };
-    } else if (
-      mainCategory.toLowerCase().includes("bar") ||
-      name.toLowerCase().includes("bar")
-    ) {
-      return { icon: <Beer size={20} />, color: "bg-rose-400" };
-    } else if (
-      mainCategory.toLowerCase().includes("auth") ||
-      name.toLowerCase().includes("authorisation")
-    ) {
-      return { icon: <Building size={20} />, color: "bg-gray-400" };
-    }
+    // Obtenir la classe de couleur de fond pour cette catégorie
+    const backgroundColor = category.backgroundColor || "bg-gray-500";
 
-    // Default icon
-    return { icon: <HelpCircle size={20} />, color: "bg-gray-500" };
+    return {
+      category,
+      IconComponent,
+      backgroundColor,
+    };
   };
 
-  // Format transaction title based on name patterns
+  // Get title and subtitles
   const formatTransactionTitle = () => {
     const name = transaction.name || "Transaction";
 
@@ -187,37 +121,14 @@ export default function TransactionItem({ transaction, showCheckbox = false }) {
       return transaction.category.slice(1).join(" > ");
     }
 
-    // For CARTE transactions with certain categories
-    if (
-      transaction.name &&
-      transaction.name.toUpperCase().startsWith("CARTE")
-    ) {
-      // Check for restaurant category
-      if (
-        transaction.category &&
-        (transaction.category.toString().toLowerCase().includes("restaurant") ||
-          transaction.category.toString().toLowerCase().includes("bar"))
-      ) {
-        return "Restaurants, bars, discothèques...";
-      }
-
-      // Check for health/optical category
-      if (
-        transaction.name.toLowerCase().includes("jimmy fairly") ||
-        transaction.name.toLowerCase().includes("optique")
-      ) {
-        return "Optique, audition...";
-      }
-    }
-
     return "";
   };
 
   // Determine if it's a debit or credit transaction
   const isDebit = transaction.amount > 0;
 
-  // Get icon and color for this transaction
-  const { icon, color } = getCategoryIconAndColor();
+  // Get category info for this transaction
+  const { IconComponent, backgroundColor } = getCategoryInfo();
 
   // Get title and subtitles
   const title = formatTransactionTitle();
@@ -235,9 +146,9 @@ export default function TransactionItem({ transaction, showCheckbox = false }) {
 
       {/* Category Icon */}
       <div
-        className={`flex-shrink-0 w-10 h-10 flex items-center justify-center ${color} text-white rounded-full mr-4`}
+        className={`flex-shrink-0 w-10 h-10 flex items-center justify-center ${backgroundColor} text-white rounded-full mr-4`}
       >
-        {icon}
+        <IconComponent size={20} />
       </div>
 
       {/* Transaction Details */}

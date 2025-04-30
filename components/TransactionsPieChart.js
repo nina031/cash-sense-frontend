@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
+import { getCategoryColor } from "@/utils/categoryUtils";
 
 export default function TransactionsPieChart({
   transactions,
@@ -11,9 +12,6 @@ export default function TransactionsPieChart({
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   const [currentCategoryPath, setCurrentCategoryPath] = useState([]);
-  const [chartTitle, setChartTitle] = useState(
-    "Répartition des dépenses par catégorie"
-  );
 
   /**
    * Normalizes a category into array format
@@ -93,10 +91,13 @@ export default function TransactionsPieChart({
       categoryTotals[category] += transaction.amount;
     });
 
-    // Convertir l'objet en tableau pour ECharts
+    // Convertir l'objet en tableau pour ECharts avec les couleurs appropriées
     return Object.entries(categoryTotals).map(([name, value]) => ({
       name,
       value: Number(value.toFixed(2)), // Arrondir à 2 décimales
+      itemStyle: {
+        color: getCategoryColor(name), // Utiliser la couleur définie dans notre configuration
+      },
     }));
   };
 
@@ -105,9 +106,6 @@ export default function TransactionsPieChart({
     // Mettre à jour le chemin de la catégorie
     const newPath = [...currentCategoryPath, category];
     setCurrentCategoryPath(newPath);
-
-    // Mettre à jour le titre du graphique
-    setChartTitle(`Dépenses: ${newPath.join(" > ")}`);
 
     // Notifier le composant parent
     if (onCategoryClick) {
@@ -120,13 +118,6 @@ export default function TransactionsPieChart({
     if (currentCategoryPath.length > 0) {
       const newPath = currentCategoryPath.slice(0, -1);
       setCurrentCategoryPath(newPath);
-
-      // Mettre à jour le titre du graphique
-      if (newPath.length === 0) {
-        setChartTitle("Répartition des dépenses par catégorie");
-      } else {
-        setChartTitle(`Dépenses: ${newPath.join(" > ")}`);
-      }
 
       // Notifier le composant parent avec la catégorie du niveau précédent
       if (onCategoryClick) {
@@ -151,10 +142,6 @@ export default function TransactionsPieChart({
 
     // Configuration de l'option pour le pie chart
     const option = {
-      title: {
-        text: chartTitle,
-        left: "center",
-      },
       tooltip: {
         trigger: "item",
         formatter: "{a} <br/>{b} : {c}€ ({d}%)",
@@ -210,7 +197,7 @@ export default function TransactionsPieChart({
         chartInstance.current = null;
       }
     };
-  }, [transactions, currentCategoryPath, chartTitle, onCategoryClick]);
+  }, [transactions, currentCategoryPath, onCategoryClick]);
 
   // Redimensionner le graphique lorsque la fenêtre change de taille
   useEffect(() => {
