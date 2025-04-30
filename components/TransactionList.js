@@ -298,7 +298,11 @@ export default function TransactionList({
     <div className="space-y-2">
       <div className="divide-y divide-gray-200">
         {filteredTransactions.map((transaction) => (
-          <TransactionItem key={transaction.id} transaction={transaction} />
+          <TransactionItem
+            key={transaction.id}
+            transaction={transaction}
+            categoryPath={filter?.categoryPath || []}
+          />
         ))}
       </div>
     </div>

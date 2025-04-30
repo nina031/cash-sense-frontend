@@ -7,9 +7,15 @@ import {
   findCategoryByTransaction,
   getCategoryIcon,
   getCategoryBackgroundColor,
+  getCategoryFromPath,
+  normalizeCategory,
 } from "@/utils/categoryUtils";
 
-export default function TransactionItem({ transaction, showCheckbox = false }) {
+export default function TransactionItem({
+  transaction,
+  showCheckbox = false,
+  categoryPath = [],
+}) {
   // Format the amount (negative for expenses, positive for income)
   const formatAmount = (amount) => {
     return new Intl.NumberFormat("fr-FR", {
@@ -19,22 +25,73 @@ export default function TransactionItem({ transaction, showCheckbox = false }) {
     }).format(Math.abs(amount));
   };
 
-  // Get category information based on transaction data
+  // Get category information based on transaction data and current category path
   const getCategoryInfo = () => {
     const name = transaction.name || "";
-    // Trouver la catégorie appropriée basée sur les données de la transaction
+
+    // If we have a categoryPath (user clicked on a specific category)
+    if (categoryPath && categoryPath.length > 0) {
+      // Normalize the transaction category to array format
+      const transactionCategories = normalizeCategory(transaction.category);
+
+      // Debugging - uncomment if needed
+      // console.log("Transaction:", name, "Categories:", transactionCategories, "Path:", categoryPath);
+
+      // Check if this transaction belongs to a specific sub-category
+      if (transactionCategories.length > categoryPath.length) {
+        // Get the sub-category name at the next level
+        const subCategoryName = transactionCategories[categoryPath.length];
+
+        if (subCategoryName) {
+          // Use direct utility functions to get icon and background color
+          const icon = getCategoryIcon(subCategoryName);
+          const bgColor = getCategoryBackgroundColor(subCategoryName);
+
+          return {
+            category: { name: subCategoryName },
+            IconComponent: icon,
+            backgroundColor: bgColor,
+          };
+        }
+      }
+
+      // We're viewing items in a category, use the specific icon for this transaction
+      // based on its actual category (not just the parent)
+      if (transactionCategories.length > 0) {
+        // Use the most specific category available for this transaction
+        const mostSpecificCategory =
+          transactionCategories[transactionCategories.length - 1];
+        const icon = getCategoryIcon(mostSpecificCategory);
+        const bgColor = getCategoryBackgroundColor(mostSpecificCategory);
+
+        return {
+          category: { name: mostSpecificCategory },
+          IconComponent: icon,
+          backgroundColor: bgColor,
+        };
+      }
+
+      // Fallback to selected category
+      const icon = getCategoryIcon(categoryPath[categoryPath.length - 1]);
+      const bgColor = getCategoryBackgroundColor(
+        categoryPath[categoryPath.length - 1]
+      );
+
+      return {
+        category: { name: categoryPath[categoryPath.length - 1] },
+        IconComponent: icon,
+        backgroundColor: bgColor,
+      };
+    }
+
+    // Default behavior (no specific category selected)
+    // Find the appropriate category based on transaction data
     const category = findCategoryByTransaction(name, transaction.category);
-
-    // Obtenir l'icône pour cette catégorie
-    const IconComponent = category.icon || HelpCircle;
-
-    // Obtenir la classe de couleur de fond pour cette catégorie
-    const backgroundColor = category.backgroundColor || "bg-gray-500";
 
     return {
       category,
-      IconComponent,
-      backgroundColor,
+      IconComponent: category.icon || HelpCircle,
+      backgroundColor: category.backgroundColor || "bg-gray-500",
     };
   };
 
