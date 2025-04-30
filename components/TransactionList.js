@@ -278,10 +278,6 @@ export default function TransactionList({
   // Render the list of transactions
   return (
     <div className="space-y-2">
-      <h2 className="text-xl font-bold mb-4">
-        {filter?.type || "Transactions"} - {filter?.month || "Tous les mois"}
-        {filter?.category && ` - ${filter.category}`}
-      </h2>
       <div className="divide-y divide-gray-200">
         {filteredTransactions.map((transaction) => (
           <TransactionItem key={transaction.id} transaction={transaction} />
