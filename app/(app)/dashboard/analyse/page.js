@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useDemoMode } from "@/contexts/DemoContext";
 import TransactionList from "@/components/TransactionList";
+import TransactionsPieChart from "@/components/TransactionsPieChart";
 import { ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
@@ -34,9 +35,12 @@ export default function TransactionsPage() {
   const [transactionType, setTransactionType] = useState("Dépenses"); // "Dépenses" ou "Revenus"
   const [selectedMonth, setSelectedMonth] = useState(""); // Mois sélectionné
   const [selectedYear, setSelectedYear] = useState(""); // Année sélectionnée
+  const [selectedCategory, setSelectedCategory] = useState(""); // Catégorie sélectionnée
+  const [categoryPath, setCategoryPath] = useState([]); // Chemin de catégorie hiérarchique
   const [isMonthOpen, setIsMonthOpen] = useState(false); // État pour le dropdown des mois
   const [isYearOpen, setIsYearOpen] = useState(false); // État pour le dropdown des années
   const [loading, setLoading] = useState(false);
+  const [allTransactions, setAllTransactions] = useState([]); // Toutes les transactions
 
   // Générer les années (de l'année actuelle à 5 ans en arrière)
   const currentYear = new Date().getFullYear();
@@ -52,21 +56,52 @@ export default function TransactionsPage() {
   // Gestionnaires d'événements
   const handleTypeChange = (type) => {
     setTransactionType(type);
+    // Réinitialiser la catégorie sélectionnée lors du changement de type
+    setSelectedCategory("");
+    setCategoryPath([]);
   };
 
   const handleMonthChange = (month) => {
     setSelectedMonth(month);
     setIsMonthOpen(false);
+    // Réinitialiser la catégorie sélectionnée lors du changement de mois
+    setSelectedCategory("");
+    setCategoryPath([]);
   };
 
   const handleYearChange = (year) => {
     setSelectedYear(year);
     setIsYearOpen(false);
+    // Réinitialiser la catégorie sélectionnée lors du changement d'année
+    setSelectedCategory("");
+    setCategoryPath([]);
+  };
+
+  // Gestionnaire pour le clic sur une catégorie dans le pie chart
+  const handleCategoryClick = (category, path) => {
+    if (path) {
+      // Si nous recevons un chemin complet, l'utiliser
+      setCategoryPath(path);
+      setSelectedCategory(path.length > 0 ? path[path.length - 1] : "");
+    } else {
+      // Sinon, ajouter la catégorie au chemin actuel (pour compatibilité)
+      setSelectedCategory(category);
+      if (category) {
+        setCategoryPath([category]);
+      } else {
+        setCategoryPath([]);
+      }
+    }
   };
 
   // Formater la date pour le composant TransactionList
   const formattedDate =
     selectedMonth && selectedYear ? `${selectedMonth} ${selectedYear}` : "";
+
+  // Callback pour recevoir toutes les transactions chargées
+  const handleTransactionsLoaded = (transactions) => {
+    setAllTransactions(transactions);
+  };
 
   return (
     <div>
@@ -157,17 +192,35 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      {/* Liste des transactions filtrées */}
-      <div className="bg-white rounded-lg p-6">
-        {formattedDate && (
-          <TransactionList
-            accessToken={isDemoMode ? demoAccessToken : null}
-            filter={{
-              type: transactionType,
-              month: formattedDate,
-            }}
-          />
-        )}
+      {/* Layout en deux colonnes pour le pie chart et la liste des transactions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(86vh-180px)]">
+        {/* Colonne de gauche - Pie Chart */}
+        <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100 ">
+          {formattedDate && (
+            <TransactionsPieChart
+              transactions={allTransactions}
+              onCategoryClick={handleCategoryClick}
+            />
+          )}
+        </div>
+
+        {/* Colonne de droite - Liste des transactions avec défilement */}
+        <div className="bg-white rounded-lg p-6 overflow-hidden shadow-lg border border-gray-100">
+          <div className="h-full overflow-y-auto pr-2">
+            {formattedDate && (
+              <TransactionList
+                accessToken={isDemoMode ? demoAccessToken : null}
+                filter={{
+                  type: transactionType,
+                  month: formattedDate,
+                  category: selectedCategory,
+                  categoryPath: categoryPath,
+                }}
+                onTransactionsLoaded={handleTransactionsLoaded}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

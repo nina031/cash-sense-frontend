@@ -1,12 +1,16 @@
 /**
  * Component to display a list of transactions
- * Handles filtering by transaction type and month
+ * Handles filtering by transaction type, month, and category
  */
 import { useState, useEffect } from "react";
 import TransactionItem from "./TransactionItem";
 import { useDemoMode } from "@/contexts/DemoContext";
 
-export default function TransactionList({ accessToken, filter }) {
+export default function TransactionList({
+  accessToken,
+  filter,
+  onTransactionsLoaded,
+}) {
   const { isDemoMode, demoAccessToken } = useDemoMode();
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
@@ -44,7 +48,7 @@ export default function TransactionList({ accessToken, filter }) {
         const timeSinceTokenChange = Date.now() - lastTokenChange;
         if (retryCount === 0 && timeSinceTokenChange < 5000) {
           // Add small initial delay for demo mode to allow Plaid to process
-          await new Promise((resolve) => setTimeout(resolve, 2000));
+          await new Promise((resolve) => setTimeout(resolve, 4000));
         }
 
         const response = await fetch(
@@ -72,9 +76,16 @@ export default function TransactionList({ accessToken, filter }) {
           (a, b) => new Date(b.date) - new Date(a.date)
         );
 
-        console.log("test", sortedTransactions.length);
-
         setTransactions(sortedTransactions);
+
+        // If a callback was provided, pass all transactions to the parent component
+        if (
+          onTransactionsLoaded &&
+          typeof onTransactionsLoaded === "function"
+        ) {
+          onTransactionsLoaded(sortedTransactions);
+        }
+
         setLoading(false);
       } catch (err) {
         console.error("Failed to fetch transactions:", err);
@@ -165,6 +176,56 @@ export default function TransactionList({ accessToken, filter }) {
       }
     }
 
+    // Filter by category (hierarchical)
+    if (filter?.categoryPath && filter.categoryPath.length > 0) {
+      result = result.filter((t) => {
+        // Si la transaction n'a pas de catégorie
+        if (!t.category) {
+          return filter.categoryPath[0] === "Non catégorisé";
+        }
+
+        // Si la catégorie est une chaîne
+        if (typeof t.category === "string") {
+          return filter.categoryPath[0] === t.category;
+        }
+
+        // Si la catégorie est un tableau, vérifier si elle correspond au chemin
+        if (Array.isArray(t.category)) {
+          for (let i = 0; i < filter.categoryPath.length; i++) {
+            if (
+              i >= t.category.length ||
+              filter.categoryPath[i] !== t.category[i]
+            ) {
+              return false;
+            }
+          }
+          return true;
+        }
+
+        return false;
+      });
+    } else if (filter?.category) {
+      // Ancienne méthode (pour compatibilité)
+      result = result.filter((t) => {
+        // Si la transaction n'a pas de catégorie
+        if (!t.category) {
+          return filter.category === "Non catégorisé";
+        }
+
+        // Si la catégorie est une chaîne
+        if (typeof t.category === "string") {
+          return t.category === filter.category;
+        }
+
+        // Si la catégorie est un tableau, vérifier si elle contient la catégorie recherchée
+        if (Array.isArray(t.category)) {
+          return t.category.includes(filter.category);
+        }
+
+        return false;
+      });
+    }
+
     setFilteredTransactions(result);
   }, [transactions, filter]);
 
@@ -219,6 +280,7 @@ export default function TransactionList({ accessToken, filter }) {
     <div className="space-y-2">
       <h2 className="text-xl font-bold mb-4">
         {filter?.type || "Transactions"} - {filter?.month || "Tous les mois"}
+        {filter?.category && ` - ${filter.category}`}
       </h2>
       <div className="divide-y divide-gray-200">
         {filteredTransactions.map((transaction) => (
