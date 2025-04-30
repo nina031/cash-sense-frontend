@@ -15,52 +15,54 @@ export default function TransactionsPieChart({
     "Répartition des dépenses par catégorie"
   );
 
+  /**
+   * Normalizes a category into array format
+   * @param {string|array|null} category - The category to normalize
+   * @returns {array} - Normalized category array
+   */
+  const normalizeCategory = (category) => {
+    if (!category) return ["Non catégorisé"];
+    if (typeof category === "string") {
+      if (category === "Non catégorisé") return ["Non catégorisé"];
+      return category.split(",").map((cat) => cat.trim());
+    }
+    if (Array.isArray(category)) return category;
+    return ["Non catégorisé"];
+  };
+
   // Fonction pour extraire le niveau de catégorie approprié d'une transaction
   const getCategoryAtLevel = (transaction, level = 0) => {
     if (!transaction.category) return "Non catégorisé";
 
-    // Si la catégorie est une chaîne, la traiter comme une catégorie unique
-    if (typeof transaction.category === "string") {
-      return transaction.category;
+    // Normaliser la catégorie en format tableau
+    const categoryArray = normalizeCategory(transaction.category);
+
+    // Si le niveau demandé n'existe pas, renvoyer le niveau le plus profond
+    if (level >= categoryArray.length) {
+      return categoryArray[categoryArray.length - 1];
     }
 
-    // Si la catégorie est un tableau, extraire le niveau approprié
-    if (Array.isArray(transaction.category)) {
-      // Si le niveau demandé n'existe pas, renvoyer le niveau le plus profond
-      if (level >= transaction.category.length) {
-        return transaction.category[transaction.category.length - 1];
-      }
-      return transaction.category[level];
-    }
-
-    return "Non catégorisé";
+    return categoryArray[level];
   };
 
   // Fonction pour vérifier si une transaction appartient à un chemin de catégorie
   const transactionMatchesCategoryPath = (transaction) => {
     if (currentCategoryPath.length === 0) return true;
 
-    if (!transaction.category) return false;
+    // Normaliser la catégorie en format tableau
+    const categoryArray = normalizeCategory(transaction.category);
 
-    // Si la catégorie est une chaîne, vérifier si elle correspond à la première partie du chemin
-    if (typeof transaction.category === "string") {
-      return currentCategoryPath[0] === transaction.category;
-    }
-
-    // Si la catégorie est un tableau, vérifier si elle correspond au chemin
-    if (Array.isArray(transaction.category)) {
-      for (let i = 0; i < currentCategoryPath.length; i++) {
-        if (
-          i >= transaction.category.length ||
-          currentCategoryPath[i] !== transaction.category[i]
-        ) {
-          return false;
-        }
+    // Vérifier si la catégorie correspond au chemin actuel
+    for (let i = 0; i < currentCategoryPath.length; i++) {
+      if (
+        i >= categoryArray.length ||
+        currentCategoryPath[i] !== categoryArray[i]
+      ) {
+        return false;
       }
-      return true;
     }
 
-    return false;
+    return true;
   };
 
   // Cette fonction regroupe les transactions par catégorie selon le niveau actuel

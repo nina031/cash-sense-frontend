@@ -30,7 +30,10 @@ export default function TransactionItem({ transaction, showCheckbox = false }) {
     // Get main category or transaction name
     const mainCategory = Array.isArray(transaction.category)
       ? transaction.category[0]
-      : transaction.category || "";
+      : typeof transaction.category === "string"
+      ? transaction.category
+      : "";
+
     const name = transaction.name || "";
 
     // Check transaction name first for specific keywords
@@ -164,7 +167,7 @@ export default function TransactionItem({ transaction, showCheckbox = false }) {
     // Default: show category if available
     if (transaction.category) {
       if (Array.isArray(transaction.category)) {
-        // Format the first part of category array for display
+        // Return the first category as main category
         return transaction.category[0];
       }
       return transaction.category;
@@ -175,6 +178,15 @@ export default function TransactionItem({ transaction, showCheckbox = false }) {
 
   // Get detailed subcategory if available
   const getDetailedSubcategory = () => {
+    // If we have category array with multiple levels, display the subcategories
+    if (
+      Array.isArray(transaction.category) &&
+      transaction.category.length > 1
+    ) {
+      // Return everything except the first category (which is shown in the subtitle)
+      return transaction.category.slice(1).join(" > ");
+    }
+
     // For CARTE transactions with certain categories
     if (
       transaction.name &&

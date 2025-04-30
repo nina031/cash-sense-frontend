@@ -71,8 +71,25 @@ export default function TransactionList({
 
         const data = await response.json();
 
+        // Transform category strings into arrays
+        const transformedTransactions = data.transactions.map((transaction) => {
+          if (
+            typeof transaction.category === "string" &&
+            transaction.category !== "Non catégorisé"
+          ) {
+            // Create a copy with the transformed category
+            return {
+              ...transaction,
+              category: transaction.category
+                .split(",")
+                .map((cat) => cat.trim()),
+            };
+          }
+          return transaction;
+        });
+
         // Sort transactions by date (most recent first)
-        const sortedTransactions = data.transactions.sort(
+        const sortedTransactions = transformedTransactions.sort(
           (a, b) => new Date(b.date) - new Date(a.date)
         );
 
@@ -191,6 +208,7 @@ export default function TransactionList({
 
         // Si la catégorie est un tableau, vérifier si elle correspond au chemin
         if (Array.isArray(t.category)) {
+          // Vérification des sous-catégories de manière hiérarchique
           for (let i = 0; i < filter.categoryPath.length; i++) {
             if (
               i >= t.category.length ||

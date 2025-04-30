@@ -7,9 +7,32 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 const ENV_MODE = process.env.NEXT_PUBLIC_ENV_MODE;
 
 /**
+ * Transforms transaction categories from string format to array format
+ * @param {Object} transaction - The transaction object to transform
+ * @returns {Object} - Transformed transaction object
+ */
+function transformTransaction(transaction) {
+  // Create a copy of the transaction to avoid mutating the original
+  const transformedTransaction = { ...transaction };
+
+  // Transform category if it's a string
+  if (
+    typeof transaction.category === "string" &&
+    transaction.category !== "Non catégorisé"
+  ) {
+    // Split by comma and trim whitespace
+    transformedTransaction.category = transaction.category
+      .split(",")
+      .map((cat) => cat.trim());
+  }
+
+  return transformedTransaction;
+}
+
+/**
  * Fetches transactions using the provided access token
  * @param {string} accessToken - The Plaid access token
- * @returns {Promise<Array>} - Array of transactions
+ * @returns {Promise<Array>} - Array of transactions with transformed categories
  */
 export async function getTransactions(accessToken) {
   try {
@@ -36,7 +59,13 @@ export async function getTransactions(accessToken) {
 
     const data = await response.json();
     console.log("Received transactions data:", data);
-    return data.transactions || [];
+
+    // Transform transactions to have proper category arrays
+    const transformedTransactions = (data.transactions || []).map(
+      transformTransaction
+    );
+
+    return transformedTransactions;
   } catch (error) {
     console.error("Failed to fetch transactions:", error);
     throw error;
