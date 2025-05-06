@@ -77,6 +77,9 @@ const categoryMappings = {
   Restaurants: "foodAndDrink.restaurants",
   "Fast Food": "foodAndDrink.fastFood",
   Bars: "foodAndDrink.bars",
+  "Cafe & Bakery": "foodAndDrink.coffeeShop", // Mise à jour: coffeeShop au lieu de cafe
+  "Café & Boulangerie": "foodAndDrink.coffeeShop", // Ajout du nom français
+  "Coffee Shop": "foodAndDrink.coffeeShop", // Autre variante possible
   Shopping: "shopping",
   Shops: "shopping",
   Clothing: "shopping.clothing",
@@ -103,6 +106,9 @@ const categoryMappings = {
   Medical: "health.medical",
   Pharmacy: "health.pharmacy",
   Optical: "health.optical",
+  "A catégoriser": "other", // Ajout de la catégorie par défaut
+  "À catégoriser": "other", // Ajout de la catégorie par défaut (variante avec accent)
+  "Non catégorisé": "other", // Ajout de la catégorie par défaut (autre formulation)
 };
 
 /**
@@ -240,7 +246,12 @@ export function findCategoryByTransaction(
       normalizedName.includes("bar") ||
       normalizedName.includes("cafe")
     ) {
-      const subcat = normalizedName.includes("bar") ? "bars" : "restaurants";
+      const subcat = normalizedName.includes("bar")
+        ? "bars"
+        : normalizedName.includes("cafe") || normalizedName.includes("café")
+        ? "coffeeShop" // Utiliser coffeeShop au lieu de cafe
+        : "restaurants";
+
       return (
         categories.foodAndDrink.subcategories[subcat] || categories.foodAndDrink
       );
@@ -367,14 +378,8 @@ export function getCategoryIcon(category) {
 export function getCategoryBackgroundColor(category) {
   if (!category) return categories.other.backgroundColor;
 
-  // Si on a un objet catégorie, retourner sa couleur de fond
-  if (typeof category === "object") {
-    return category.backgroundColor || categories.other.backgroundColor;
-  }
-
   // Si on a un nom de catégorie, essayer de le mapper à notre configuration
   const { categoryKey, subcategoryKey } = mapBackendCategory(category);
-
   // Si on a trouvé une sous-catégorie
   if (
     subcategoryKey &&

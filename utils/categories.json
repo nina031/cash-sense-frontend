@@ -3,9 +3,9 @@
     "id": "foodAndDrink",
     "name": "Food and Drink",
     "nameFr": "Nourriture et Boissons",
-    "iconName": "Utensils",
-    "color": "#e11d48",
-    "backgroundColor": "bg-rose-500",
+    "iconName": "Car",
+    "color": "#d500f9",
+    "backgroundColor": "bg-[#00bcd4]",
     "keywords": ["restaurant", "food", "bar", "café", "coffee", "grocery"],
     "subcategories": {
       "restaurants": {
@@ -13,16 +13,16 @@
         "name": "Restaurants",
         "nameFr": "Restaurants",
         "iconName": "Utensils",
-        "color": "#e11d48",
-        "backgroundColor": "bg-rose-500"
+        "color": "#e91e63",
+        "backgroundColor": "bg-[#00bcd4]"
       },
       "fastFood": {
         "id": "fastFood",
         "name": "Fast Food",
         "nameFr": "Fast Food",
         "iconName": "Pizza",
-        "color": "#f43f5e",
-        "backgroundColor": "bg-rose-400"
+        "color": "#ec407a",
+        "backgroundColor": "bg-[#ec407a]"
       },
       "bars": {
         "id": "bars",
@@ -30,23 +30,23 @@
         "nameFr": "Bars & Alcool",
         "iconName": "Beer",
         "color": "#fb7185",
-        "backgroundColor": "bg-rose-300"
+        "backgroundColor": "bg-rose-600"
       },
       "groceries": {
         "id": "groceries",
         "name": "Groceries",
         "nameFr": "Courses alimentaires",
         "iconName": "ShoppingBag",
-        "color": "#fda4af",
-        "backgroundColor": "bg-rose-200"
+        "color": "#f06292",
+        "backgroundColor": "bg-[#f06292]"
       },
-      "cafe": {
-        "id": "cafe",
+      "coffeeShop": {
+        "id": "coffeeShop",
         "name": "Cafe & Bakery",
         "nameFr": "Café & Boulangerie",
         "iconName": "Coffee",
-        "color": "#fecdd3",
-        "backgroundColor": "bg-rose-100"
+        "color": "#f48fb1",
+        "backgroundColor": "bg-[#f48fb1]"
       }
     }
   },

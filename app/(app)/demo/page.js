@@ -21,8 +21,6 @@ export default function DemoPage() {
       try {
         // 1. Créer un token sandbox
         setStatus("Création d'un compte de démonstration...");
-
-        console.log("testmano", process.env.NEXT_PUBLIC_API_URL);
         const sandboxResponse = await fetch(
           `${
             process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
