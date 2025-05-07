@@ -4,50 +4,23 @@
 
 // Use environment variables from .env.local
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-const ENV_MODE = process.env.NEXT_PUBLIC_ENV_MODE;
 
 /**
- * Transforms transaction categories from string format to array format
- * @param {Object} transaction - The transaction object to transform
- * @returns {Object} - Transformed transaction object
+ * Fetches transactions for a user
+ * @param {string} userId - The user ID
+ * @returns {Promise<Array>} - Array of transactions
  */
-function transformTransaction(transaction) {
-  // Create a copy of the transaction to avoid mutating the original
-  const transformedTransaction = { ...transaction };
-
-  // Transform category if it's a string
-  if (
-    typeof transaction.category === "string" &&
-    transaction.category !== "Non catégorisé"
-  ) {
-    // Split by comma and trim whitespace
-    transformedTransaction.category = transaction.category
-      .split(",")
-      .map((cat) => cat.trim());
-  }
-
-  return transformedTransaction;
-}
-
-/**
- * Fetches transactions using the provided access token
- * @param {string} accessToken - The Plaid access token
- * @returns {Promise<Array>} - Array of transactions with transformed categories
- */
-export async function getTransactions(accessToken) {
+export async function getTransactions(userId) {
   try {
-    console.log("Calling API with URL:", `${API_URL}/api/get_transactions`);
-    console.log("Using access token:", accessToken);
+    console.log("Calling API to get transactions for user:", userId);
 
     const response = await fetch(`${API_URL}/api/get_transactions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ access_token: accessToken }),
+      body: JSON.stringify({ user_id: userId }),
     });
-
-    console.log("Response status:", response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -60,12 +33,7 @@ export async function getTransactions(accessToken) {
     const data = await response.json();
     console.log("Received transactions data:", data);
 
-    // Transform transactions to have proper category arrays
-    const transformedTransactions = (data.transactions || []).map(
-      transformTransaction
-    );
-
-    return transformedTransactions;
+    return data.transactions || [];
   } catch (error) {
     console.error("Failed to fetch transactions:", error);
     throw error;
@@ -73,73 +41,80 @@ export async function getTransactions(accessToken) {
 }
 
 /**
- * Creates a sandbox test token
- * @param {string} institutionId - Institution ID (default: 'ins_1')
- * @returns {Promise<Object>} - Object containing the public token
+ * Adds a manual transaction
+ * @param {string} userId - User ID
+ * @param {Object} transactionData - Transaction data
+ * @returns {Promise<Object>} - The added transaction
  */
-export async function createSandboxToken(institutionId = "ins_1") {
+export async function addTransaction(userId, transactionData) {
   try {
-    console.log("Creating sandbox token for institution:", institutionId);
+    console.log("Adding transaction for user:", userId);
 
-    const response = await fetch(`${API_URL}/api/create_sandbox_token`, {
+    const response = await fetch(`${API_URL}/api/add_transaction`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ institution_id: institutionId }),
+      body: JSON.stringify({
+        user_id: userId,
+        transaction: transactionData,
+      }),
     });
-
-    console.log("Sandbox token response status:", response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Error response:", errorText);
       throw new Error(
-        `Error creating sandbox token: ${response.status}. Details: ${errorText}`
+        `Error adding transaction: ${response.status}. Details: ${errorText}`
       );
     }
 
     const data = await response.json();
-    console.log("Received sandbox token data:", data);
-    return data;
+    console.log("Transaction added successfully:", data);
+    return data.transaction;
   } catch (error) {
-    console.error("Failed to create sandbox token:", error);
+    console.error("Failed to add transaction:", error);
     throw error;
   }
 }
 
 /**
- * Exchanges a public token for an access token
- * @param {string} publicToken - The public token to exchange
- * @returns {Promise<Object>} - Object containing the access token
+ * Toggles the demo mode
+ * @param {boolean} enableDemo - Whether to enable or disable demo mode
+ * @param {string} userId - User ID
+ * @returns {Promise<Object>} - Result of the operation
  */
-export async function exchangeToken(publicToken) {
+export async function toggleDemoMode(enableDemo, userId) {
   try {
-    console.log("Exchanging public token:", publicToken);
+    console.log(
+      `${enableDemo ? "Enabling" : "Disabling"} demo mode for user:`,
+      userId
+    );
 
-    const response = await fetch(`${API_URL}/api/exchange_token`, {
+    const response = await fetch(`${API_URL}/api/toggle_demo_mode`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ public_token: publicToken }),
+      body: JSON.stringify({
+        enable_demo: enableDemo,
+        user_id: userId,
+      }),
     });
-
-    console.log("Exchange token response status:", response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Error response:", errorText);
       throw new Error(
-        `Error exchanging token: ${response.status}. Details: ${errorText}`
+        `Error toggling demo mode: ${response.status}. Details: ${errorText}`
       );
     }
 
     const data = await response.json();
-    console.log("Received exchange token data:", data);
+    console.log("Demo mode toggled successfully:", data);
     return data;
   } catch (error) {
-    console.error("Failed to exchange token:", error);
+    console.error("Failed to toggle demo mode:", error);
     throw error;
   }
 }
