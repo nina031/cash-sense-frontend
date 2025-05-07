@@ -42,10 +42,10 @@ function TransactionItem({ transaction }) {
       {/* Montant */}
       <div
         className={`flex-shrink-0 font-medium ${
-          isDebit ? "text-red-600" : "text-green-600"
+          isDebit ? "text-gray-700" : "text-[var(--positive)]"
         }`}
       >
-        {isDebit ? "-" : "+"} {formatAmount(amount)}
+        {isDebit ? "-" : ""} {formatAmount(amount)}
       </div>
     </div>
   );

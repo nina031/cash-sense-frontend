@@ -1,15 +1,7 @@
 // components/TransactionList.js
-import { useAuth } from "@/contexts/AuthContext";
-import { useTransactions } from "@/hooks/useTransactions";
 import TransactionItem from "./TransactionItem";
 
-export default function TransactionList() {
-  const { session } = useAuth();
-  const userId = session?.user?.id;
-
-  // Utiliser notre hook personnalisé
-  const { transactions, loading, error } = useTransactions(userId);
-
+export default function TransactionList({ transactions, loading, error }) {
   // Affichage du chargement
   if (loading) {
     return (
@@ -30,7 +22,7 @@ export default function TransactionList() {
   }
 
   // Aucune transaction
-  if (transactions.length === 0) {
+  if (!transactions || transactions.length === 0) {
     return (
       <div className="p-4 text-center text-gray-600">
         <p>Aucune transaction trouvée.</p>
@@ -40,7 +32,7 @@ export default function TransactionList() {
 
   // Affichage des transactions
   return (
-    <div className="divide-y divide-gray-200">
+    <div className="divide-y divide-gray-100">
       {transactions.map((transaction) => (
         <TransactionItem key={transaction.id} transaction={transaction} />
       ))}
