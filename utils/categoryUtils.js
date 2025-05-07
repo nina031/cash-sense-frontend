@@ -1,4 +1,4 @@
-// utils/transactionUtils.js
+// utils/categoryUtils.js
 import * as icons from "lucide-react";
 import categoriesData from "@/utils/categories.json";
 
@@ -37,6 +37,43 @@ export const formatAmount = (amount) => {
     currency: "EUR",
     minimumFractionDigits: 2,
   });
+};
+
+/**
+ * Récupère la couleur d'une catégorie à partir de son nom
+ */
+export const getCategoryColor = (categoryName) => {
+  // Couleur par défaut
+  const defaultColor = "#455A64";
+
+  // Parcourir toutes les catégories pour trouver celle qui correspond au nom
+  for (const categoryId in categoriesData) {
+    const category = categoriesData[categoryId];
+
+    // Vérifier la catégorie principale
+    if (
+      (category.name === categoryName || category.nameFr === categoryName) &&
+      category.color
+    ) {
+      return category.color;
+    }
+
+    // Vérifier les sous-catégories
+    if (category.subcategories) {
+      for (const subcatId in category.subcategories) {
+        const subcat = category.subcategories[subcatId];
+        if (
+          (subcat.name === categoryName || subcat.nameFr === categoryName) &&
+          subcat.color
+        ) {
+          return subcat.color;
+        }
+      }
+    }
+  }
+
+  // Si aucune correspondance, retourner la couleur par défaut
+  return defaultColor;
 };
 
 /**
