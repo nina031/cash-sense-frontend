@@ -9,6 +9,7 @@ import { useTransactionTypeFilter } from "@/hooks/useTransactionTypeFilter";
 import TransactionList from "@/components/TransactionList";
 import TransactionTypeFilter from "@/components/TransactionTypeFilter";
 import DateFilter from "@/components/DateFilter";
+import CategoryPieChart from "@/components/CategoryPieChart";
 import { formatDate, filterTransactionsByDate } from "@/utils/dateUtils";
 
 export default function TransactionsPage() {
@@ -51,19 +52,29 @@ export default function TransactionsPage() {
         onYearChange={setSelectedYear}
       />
 
-      {/* Liste des transactions */}
-      <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100 mt-6">
-        <h2 className="text-lg font-semibold mb-4">Transactions</h2>
-        {formattedDate && (
-          <div className="text-sm text-gray-500 mb-3">
-            Nombre de transactions: {dateFilteredTransactions.length}
-          </div>
-        )}
-        <TransactionList
-          transactions={dateFilteredTransactions}
-          loading={loading}
-          error={error}
+      {/* Conteneur pour le graphique et la liste */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        {/* Graphique circulaire des catégories - maintenant avec filtres de date */}
+        <CategoryPieChart
+          transactions={transactions}
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
         />
+
+        {/* Liste des transactions */}
+        <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100">
+          <h2 className="text-lg font-semibold mb-4">Transactions</h2>
+          {formattedDate && (
+            <div className="text-sm text-gray-500 mb-3">
+              Nombre de transactions: {dateFilteredTransactions.length}
+            </div>
+          )}
+          <TransactionList
+            transactions={dateFilteredTransactions}
+            loading={loading}
+            error={error}
+          />
+        </div>
       </div>
     </div>
   );
