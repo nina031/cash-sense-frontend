@@ -5675,7 +5675,6 @@ export namespace Prisma {
     subcategory: string | null
     isTestData: boolean | null
     isManual: boolean | null
-    rawData: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5692,7 +5691,6 @@ export namespace Prisma {
     subcategory: string | null
     isTestData: boolean | null
     isManual: boolean | null
-    rawData: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5709,7 +5707,6 @@ export namespace Prisma {
     subcategory: number
     isTestData: number
     isManual: number
-    rawData: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -5736,7 +5733,6 @@ export namespace Prisma {
     subcategory?: true
     isTestData?: true
     isManual?: true
-    rawData?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5753,7 +5749,6 @@ export namespace Prisma {
     subcategory?: true
     isTestData?: true
     isManual?: true
-    rawData?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5770,7 +5765,6 @@ export namespace Prisma {
     subcategory?: true
     isTestData?: true
     isManual?: true
-    rawData?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -5874,7 +5868,6 @@ export namespace Prisma {
     subcategory: string | null
     isTestData: boolean
     isManual: boolean
-    rawData: string | null
     createdAt: Date
     updatedAt: Date
     _count: TransactionCountAggregateOutputType | null
@@ -5910,7 +5903,6 @@ export namespace Prisma {
     subcategory?: boolean
     isTestData?: boolean
     isManual?: boolean
-    rawData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -5928,7 +5920,6 @@ export namespace Prisma {
     subcategory?: boolean
     isTestData?: boolean
     isManual?: boolean
-    rawData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -5946,7 +5937,6 @@ export namespace Prisma {
     subcategory?: boolean
     isTestData?: boolean
     isManual?: boolean
-    rawData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -5964,12 +5954,11 @@ export namespace Prisma {
     subcategory?: boolean
     isTestData?: boolean
     isManual?: boolean
-    rawData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "merchantName" | "amount" | "paymentChannel" | "pending" | "userId" | "category" | "subcategory" | "isTestData" | "isManual" | "rawData" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "merchantName" | "amount" | "paymentChannel" | "pending" | "userId" | "category" | "subcategory" | "isTestData" | "isManual" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
   export type TransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -5997,7 +5986,6 @@ export namespace Prisma {
       subcategory: string | null
       isTestData: boolean
       isManual: boolean
-      rawData: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["transaction"]>
@@ -6435,7 +6423,6 @@ export namespace Prisma {
     readonly subcategory: FieldRef<"Transaction", 'String'>
     readonly isTestData: FieldRef<"Transaction", 'Boolean'>
     readonly isManual: FieldRef<"Transaction", 'Boolean'>
-    readonly rawData: FieldRef<"Transaction", 'String'>
     readonly createdAt: FieldRef<"Transaction", 'DateTime'>
     readonly updatedAt: FieldRef<"Transaction", 'DateTime'>
   }
@@ -6929,7 +6916,6 @@ export namespace Prisma {
     subcategory: 'subcategory',
     isTestData: 'isTestData',
     isManual: 'isManual',
-    rawData: 'rawData',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -7309,7 +7295,6 @@ export namespace Prisma {
     subcategory?: StringNullableFilter<"Transaction"> | string | null
     isTestData?: BoolFilter<"Transaction"> | boolean
     isManual?: BoolFilter<"Transaction"> | boolean
-    rawData?: StringNullableFilter<"Transaction"> | string | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -7327,7 +7312,6 @@ export namespace Prisma {
     subcategory?: SortOrderInput | SortOrder
     isTestData?: SortOrder
     isManual?: SortOrder
-    rawData?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -7348,7 +7332,6 @@ export namespace Prisma {
     subcategory?: StringNullableFilter<"Transaction"> | string | null
     isTestData?: BoolFilter<"Transaction"> | boolean
     isManual?: BoolFilter<"Transaction"> | boolean
-    rawData?: StringNullableFilter<"Transaction"> | string | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -7366,7 +7349,6 @@ export namespace Prisma {
     subcategory?: SortOrderInput | SortOrder
     isTestData?: SortOrder
     isManual?: SortOrder
-    rawData?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: TransactionCountOrderByAggregateInput
@@ -7391,7 +7373,6 @@ export namespace Prisma {
     subcategory?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     isTestData?: BoolWithAggregatesFilter<"Transaction"> | boolean
     isManual?: BoolWithAggregatesFilter<"Transaction"> | boolean
-    rawData?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
   }
@@ -7690,7 +7671,6 @@ export namespace Prisma {
     subcategory?: string | null
     isTestData?: boolean
     isManual?: boolean
-    rawData?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutTransactionsInput
@@ -7708,7 +7688,6 @@ export namespace Prisma {
     subcategory?: string | null
     isTestData?: boolean
     isManual?: boolean
-    rawData?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7724,7 +7703,6 @@ export namespace Prisma {
     subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     isTestData?: BoolFieldUpdateOperationsInput | boolean
     isManual?: BoolFieldUpdateOperationsInput | boolean
-    rawData?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -7742,7 +7720,6 @@ export namespace Prisma {
     subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     isTestData?: BoolFieldUpdateOperationsInput | boolean
     isManual?: BoolFieldUpdateOperationsInput | boolean
-    rawData?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7759,7 +7736,6 @@ export namespace Prisma {
     subcategory?: string | null
     isTestData?: boolean
     isManual?: boolean
-    rawData?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7775,7 +7751,6 @@ export namespace Prisma {
     subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     isTestData?: BoolFieldUpdateOperationsInput | boolean
     isManual?: BoolFieldUpdateOperationsInput | boolean
-    rawData?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7792,7 +7767,6 @@ export namespace Prisma {
     subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     isTestData?: BoolFieldUpdateOperationsInput | boolean
     isManual?: BoolFieldUpdateOperationsInput | boolean
-    rawData?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8143,7 +8117,6 @@ export namespace Prisma {
     subcategory?: SortOrder
     isTestData?: SortOrder
     isManual?: SortOrder
-    rawData?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8164,7 +8137,6 @@ export namespace Prisma {
     subcategory?: SortOrder
     isTestData?: SortOrder
     isManual?: SortOrder
-    rawData?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8181,7 +8153,6 @@ export namespace Prisma {
     subcategory?: SortOrder
     isTestData?: SortOrder
     isManual?: SortOrder
-    rawData?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8826,7 +8797,6 @@ export namespace Prisma {
     subcategory?: string | null
     isTestData?: boolean
     isManual?: boolean
-    rawData?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -8842,7 +8812,6 @@ export namespace Prisma {
     subcategory?: string | null
     isTestData?: boolean
     isManual?: boolean
-    rawData?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -8948,7 +8917,6 @@ export namespace Prisma {
     subcategory?: StringNullableFilter<"Transaction"> | string | null
     isTestData?: BoolFilter<"Transaction"> | boolean
     isManual?: BoolFilter<"Transaction"> | boolean
-    rawData?: StringNullableFilter<"Transaction"> | string | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
   }
@@ -9052,7 +9020,6 @@ export namespace Prisma {
     subcategory?: string | null
     isTestData?: boolean
     isManual?: boolean
-    rawData?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9128,7 +9095,6 @@ export namespace Prisma {
     subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     isTestData?: BoolFieldUpdateOperationsInput | boolean
     isManual?: BoolFieldUpdateOperationsInput | boolean
-    rawData?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9144,7 +9110,6 @@ export namespace Prisma {
     subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     isTestData?: BoolFieldUpdateOperationsInput | boolean
     isManual?: BoolFieldUpdateOperationsInput | boolean
-    rawData?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9160,7 +9125,6 @@ export namespace Prisma {
     subcategory?: NullableStringFieldUpdateOperationsInput | string | null
     isTestData?: BoolFieldUpdateOperationsInput | boolean
     isManual?: BoolFieldUpdateOperationsInput | boolean
-    rawData?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

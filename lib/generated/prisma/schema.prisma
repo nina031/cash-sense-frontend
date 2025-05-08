@@ -73,8 +73,6 @@ model Transaction {
   isTestData Boolean @default(false)
   isManual   Boolean @default(false)
 
-  rawData String? @db.Text
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
