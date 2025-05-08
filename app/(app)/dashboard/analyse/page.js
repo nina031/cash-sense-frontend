@@ -56,7 +56,7 @@ export default function TransactionsPage() {
         <h2 className="text-lg font-semibold mb-4">Transactions</h2>
         {formattedDate && (
           <div className="text-sm text-gray-500 mb-3">
-            Période sélectionnée: {formattedDate}
+            Nombre de transactions: {dateFilteredTransactions.length}
           </div>
         )}
         <TransactionList
