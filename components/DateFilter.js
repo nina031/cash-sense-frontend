@@ -27,7 +27,7 @@ export default function DateFilter({ onMonthChange, onYearChange }) {
   return (
     <div className="flex justify-center gap-4 py-6">
       {/* Filtre Mois */}
-      <div className="w-48">
+      <div className="w-30">
         <DropdownMenu open={isMonthOpen} onOpenChange={setIsMonthOpen}>
           <DropdownMenuTrigger className="w-full bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-2 flex items-center justify-between hover:border-gray-300 focus:outline-none">
             <span className="text-gray-700">{selectedMonth || "Mois"}</span>
@@ -53,7 +53,7 @@ export default function DateFilter({ onMonthChange, onYearChange }) {
       </div>
 
       {/* Filtre Année */}
-      <div className="w-36">
+      <div className="w-30">
         <DropdownMenu open={isYearOpen} onOpenChange={setIsYearOpen}>
           <DropdownMenuTrigger className="w-full bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-2 flex items-center justify-between hover:border-gray-300 focus:outline-none">
             <span className="text-gray-700">{selectedYear || "Année"}</span>

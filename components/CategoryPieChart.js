@@ -1,7 +1,7 @@
 // components/CategoryPieChart.js
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import * as echarts from "echarts/core";
 import { PieChart } from "echarts/charts";
 import {
@@ -25,14 +25,63 @@ echarts.use([
   CanvasRenderer,
 ]);
 
+// Composant de légende personnalisé sans défilement
+function CustomLegend({ data, onItemClick, currentLevel }) {
+  if (!data || data.length === 0) return null;
+
+  // Trier les données par valeur (montant) en ordre décroissant et limiter à 7 éléments
+  const sortedData = [...data].sort((a, b) => b.value - a.value).slice(0, 7);
+
+  return (
+    <div className="flex flex-col space-y-2 pr-2">
+      {sortedData.map((item, index) => {
+        // Obtenir les informations de catégorie
+        const IconComponent = item.IconComponent;
+        const isClickable = currentLevel === "main" && item.categoryId;
+
+        return (
+          <div
+            key={index}
+            className={`flex items-center ${
+              isClickable ? "cursor-pointer hover:bg-gray-50 rounded-md" : ""
+            }`}
+            onClick={() => isClickable && onItemClick(item.categoryId)}
+            title={isClickable ? `Voir le détail de ${item.name}` : ""}
+          >
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center mr-2 flex-shrink-0"
+              style={{ backgroundColor: item.itemStyle.color }}
+            >
+              <IconComponent size={14} color="white" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-medium text-sm">{item.name}</span>
+              <span className="text-gray-600 text-xs">
+                {item.value.toLocaleString("fr-FR", {
+                  style: "currency",
+                  currency: "EUR",
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function CategoryPieChart({
   transactions = [],
   selectedMonth = "",
   selectedYear = "",
-  transactionType = TRANSACTION_TYPES.EXPENSES, // Paramètre avec valeur par défaut
+  transactionType = TRANSACTION_TYPES.EXPENSES,
 }) {
   const chartRef = useRef(null);
+  const chartContainerRef = useRef(null);
   const chartInstance = useRef(null);
+  const resizeObserver = useRef(null);
   const [currentLevel, setCurrentLevel] = useState("main");
   const [currentCategory, setCurrentCategory] = useState(null);
 
@@ -43,14 +92,36 @@ export default function CategoryPieChart({
     selectedYear
   );
 
-  // Fonction pour préparer les données du graphique
-  const prepareChartData = () => {
+  // Fonction pour basculer vers le drill-down
+  const handleDrillDown = (categoryId) => {
+    setCurrentCategory(categoryId);
+    setCurrentLevel("subcategory");
+  };
+
+  // Calculer la somme totale
+  const totalAmount = useMemo(() => {
     // Filtrer par type de transaction (dépenses ou revenus)
     const filteredByType = dateFilteredTransactions.filter((tx) => {
       if (transactionType === TRANSACTION_TYPES.EXPENSES) {
-        return tx.amount > 0; // Dépenses: montant positif
+        return tx.amount > 0;
       } else if (transactionType === TRANSACTION_TYPES.INCOME) {
-        return tx.amount < 0; // Revenus: montant négatif
+        return tx.amount < 0;
+      }
+      return true;
+    });
+
+    // Calculer la somme
+    return filteredByType.reduce((total, tx) => total + Math.abs(tx.amount), 0);
+  }, [dateFilteredTransactions, transactionType]);
+
+  // Utiliser useMemo pour calculer les données du graphique
+  const chartData = useMemo(() => {
+    // Filtrer par type de transaction (dépenses ou revenus)
+    const filteredByType = dateFilteredTransactions.filter((tx) => {
+      if (transactionType === TRANSACTION_TYPES.EXPENSES) {
+        return tx.amount > 0;
+      } else if (transactionType === TRANSACTION_TYPES.INCOME) {
+        return tx.amount < 0;
       }
       return true;
     });
@@ -65,17 +136,18 @@ export default function CategoryPieChart({
         if (!categoriesMap[categoryId]) {
           categoriesMap[categoryId] = 0;
         }
-        categoriesMap[categoryId] += Math.abs(tx.amount); // Utiliser la valeur absolue
+        categoriesMap[categoryId] += Math.abs(tx.amount);
       });
 
-      // Convertir en format pour ECharts
+      // Convertir en format pour ECharts et notre légende personnalisée
       return Object.keys(categoriesMap).map((categoryId) => {
-        const { name, color } = getCategoryInfo(categoryId);
+        const { name, color, IconComponent } = getCategoryInfo(categoryId);
         return {
           value: categoriesMap[categoryId],
           name: name,
           itemStyle: { color },
           categoryId,
+          IconComponent, // Pour notre légende personnalisée
         };
       });
     } else {
@@ -93,21 +165,30 @@ export default function CategoryPieChart({
         if (!subcategoriesMap[subcategoryId]) {
           subcategoriesMap[subcategoryId] = 0;
         }
-        subcategoriesMap[subcategoryId] += Math.abs(tx.amount); // Utiliser la valeur absolue
+        subcategoriesMap[subcategoryId] += Math.abs(tx.amount);
       });
 
-      // Convertir en format pour ECharts
+      // Convertir en format pour ECharts et notre légende personnalisée
       return Object.keys(subcategoriesMap).map((subcategoryId) => {
-        const { name, color } = getCategoryInfo(currentCategory, subcategoryId);
+        const { name, color, IconComponent } = getCategoryInfo(
+          currentCategory,
+          subcategoryId
+        );
         return {
           value: subcategoriesMap[subcategoryId],
           name: name,
           itemStyle: { color },
           subcategoryId,
+          IconComponent, // Pour notre légende personnalisée
         };
       });
     }
-  };
+  }, [
+    dateFilteredTransactions,
+    currentLevel,
+    currentCategory,
+    transactionType,
+  ]);
 
   // Fonction pour revenir aux catégories principales
   const handleBackClick = () => {
@@ -124,129 +205,58 @@ export default function CategoryPieChart({
       chartInstance.current = echarts.init(chartRef.current);
     }
 
-    // Déterminer le type de données selon le filtre
-    const transactionTypeLabel =
-      transactionType === TRANSACTION_TYPES.EXPENSES ? "dépense" : "revenu";
-
-    // Vérifier si nous avons des transactions filtrées
-    if (
-      dateFilteredTransactions.length === 0 &&
-      (selectedMonth || selectedYear)
-    ) {
-      // Si aucune transaction pour la période sélectionnée, afficher un message
-      chartInstance.current.setOption({
-        title: {
-          show: false, // Cacher le titre
-        },
-        tooltip: {
-          show: false,
-        },
-        legend: {
-          show: false,
-        },
-        series: [
-          {
-            type: "pie",
-            data: [],
-            radius: ["40%", "70%"],
-          },
-        ],
-      });
-      return;
-    }
-
-    // Si aucune transaction disponible du tout
-    if (transactions.length === 0) {
-      chartInstance.current.setOption({
-        title: {
-          show: false, // Cacher le titre
-        },
-        tooltip: {
-          show: false,
-        },
-        legend: {
-          show: false,
-        },
-        series: [
-          {
-            type: "pie",
-            data: [],
-            radius: ["40%", "70%"],
-          },
-        ],
-      });
-      return;
-    }
-
-    // Préparer les données pour le graphique
-    const data = prepareChartData();
-
     // Vérifier si nous avons des données après filtrage et préparation
-    if (data.length === 0) {
-      // Si aucune dépense après filtrage (même avec des transactions)
+    if (
+      dateFilteredTransactions.length === 0 ||
+      transactions.length === 0 ||
+      chartData.length === 0
+    ) {
+      // Si aucune donnée disponible
       chartInstance.current.setOption({
-        title: {
-          show: false, // Cacher le titre
-        },
-        tooltip: {
-          show: false,
-        },
-        legend: {
-          show: false,
-        },
-        series: [
-          {
-            type: "pie",
-            data: [],
-            radius: ["40%", "70%"],
-          },
-        ],
+        title: { show: false },
+        tooltip: { show: false },
+        legend: { show: false },
+        series: [{ type: "pie", data: [], radius: ["40%", "70%"] }],
       });
       return;
     }
 
     // Configuration du graphique
     const option = {
-      title: {
-        show: false, // Cacher le titre
-      },
+      title: { show: false },
       tooltip: {
         trigger: "item",
         formatter: "{b}: {c} € ({d}%)",
       },
       legend: {
-        orient: "vertical",
-        left: "left",
-        type: "scroll",
-        pageIconSize: 12,
-        pageTextStyle: {
-          color: "#888",
-        },
+        show: false, // Cacher la légende native d'ECharts
       },
       series: [
         {
           type: "pie",
-          radius: ["40%", "70%"],
+          radius: ["30%", "75%"],
+          center: ["50%", "50%"],
           avoidLabelOverlap: true,
           itemStyle: {
             borderRadius: 6,
             borderWidth: 2,
             borderColor: "#fff",
           },
-          label: {
-            show: false,
-          },
+          label: { show: false },
           emphasis: {
             label: {
               show: true,
               fontSize: 14,
               fontWeight: "bold",
             },
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: "rgba(0, 0, 0, 0.2)",
+            },
           },
-          labelLine: {
-            show: false,
-          },
-          data: data,
+          labelLine: { show: false },
+          data: chartData,
         },
       ],
     };
@@ -255,61 +265,117 @@ export default function CategoryPieChart({
     chartInstance.current.setOption(option, true);
 
     // Ajouter l'événement de clic pour le drill-down
+    chartInstance.current.off("click"); // Supprimer les anciens gestionnaires d'événements
+
     if (currentLevel === "main") {
       chartInstance.current.on("click", (params) => {
-        const categoryId = params.data.categoryId;
-        setCurrentCategory(categoryId);
-        setCurrentLevel("subcategory");
+        if (params.data && params.data.categoryId) {
+          handleDrillDown(params.data.categoryId);
+        }
       });
-    } else {
-      // Retirer l'événement de clic si on est au niveau des sous-catégories
-      chartInstance.current.off("click");
     }
 
     // Nettoyer l'événement lorsque le composant est démonté
     return () => {
-      chartInstance.current.off("click");
+      if (chartInstance.current) {
+        chartInstance.current.off("click");
+      }
     };
-  }, [
-    dateFilteredTransactions,
-    currentLevel,
-    currentCategory,
-    selectedMonth,
-    selectedYear,
-    transactions,
-    transactionType, // Ajout de la dépendance au type de transaction
-  ]);
+  }, [chartData, dateFilteredTransactions, currentLevel, transactions]);
+
+  // Configurer le ResizeObserver pour détecter les changements de taille du conteneur
+  useEffect(() => {
+    if (!chartContainerRef.current || !chartInstance.current) return;
+
+    // Créer un ResizeObserver pour surveiller les changements de taille
+    resizeObserver.current = new ResizeObserver(() => {
+      if (chartInstance.current) {
+        chartInstance.current.resize();
+      }
+    });
+
+    // Observer le conteneur parent
+    resizeObserver.current.observe(chartContainerRef.current);
+
+    // Nettoyer l'observateur lors du démontage
+    return () => {
+      if (resizeObserver.current) {
+        resizeObserver.current.disconnect();
+      }
+    };
+  }, []);
 
   // Redimensionner le graphique lorsque la fenêtre est redimensionnée
   useEffect(() => {
     const handleResize = () => {
-      chartInstance.current?.resize();
+      if (chartInstance.current) {
+        chartInstance.current.resize();
+      }
     };
 
     window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Déterminer le texte du titre
+  const titleText =
+    currentLevel === "main"
+      ? `Total des ${
+          transactionType === TRANSACTION_TYPES.EXPENSES
+            ? "dépenses"
+            : "revenus"
+        }`
+      : `Détail de la catégorie ${getCategoryInfo(currentCategory).name}`;
+
   return (
-    <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100">
-      {/* Afficher le bouton de retour au-dessus du graphique si on est au niveau des sous-catégories */}
+    <div ref={chartContainerRef} className="w-full">
+      {/* Bouton de retour uniquement en mode sous-catégorie */}
       {currentLevel === "subcategory" && (
-        <div className="mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBackClick}
-            className="flex items-center"
-          >
-            <ChevronLeft className="mr-1" size={16} />
-            Retour
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleBackClick}
+          className="flex items-center mb-2"
+        >
+          <ChevronLeft className="mr-1" size={16} />
+          Retour
+        </Button>
       )}
-      <div ref={chartRef} style={{ height: "400px", width: "100%" }}></div>
+
+      {/* Disposition du graphique et de la légende côte à côte */}
+      <div className="flex flex-row">
+        {/* Légende à gauche */}
+        <div className="flex items-center">
+          <CustomLegend
+            data={chartData}
+            onItemClick={handleDrillDown}
+            currentLevel={currentLevel}
+          />
+        </div>
+
+        {/* Graphique circulaire à droite avec titre aligné */}
+        <div className="w-2/3">
+          {/* Titre et montant alignés avec le graphique */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-700 text-center">
+              {titleText}
+            </h2>
+            <p className="text-2xl font-bold text-center">
+              {totalAmount.toLocaleString("fr-FR", {
+                style: "currency",
+                currency: "EUR",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })}
+            </p>
+            {/* Graphique */}
+            <div
+              ref={chartRef}
+              style={{ height: "300px", width: "100%" }}
+            ></div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

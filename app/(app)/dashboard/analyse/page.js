@@ -39,31 +39,37 @@ export default function TransactionsPage() {
   const formattedDate = formatDate(selectedMonth, selectedYear);
 
   return (
-    <div>
-      {/* Filtre par type de transaction */}
-      <TransactionTypeFilter
-        transactionType={transactionType}
-        setTransactionType={setTransactionType}
-      />
-
-      {/* Filtres de date */}
-      <DateFilter
-        onMonthChange={setSelectedMonth}
-        onYearChange={setSelectedYear}
-      />
-
-      {/* Conteneur pour le graphique et la liste */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {/* Graphique circulaire des catégories - avec tous les filtres */}
-        <CategoryPieChart
-          transactions={transactions}
-          selectedMonth={selectedMonth}
-          selectedYear={selectedYear}
-          transactionType={transactionType} // Ajout du type de transaction
+    <div className="flex flex-col h-full">
+      {/* Filtres en haut de la page avec taille fixe */}
+      <div className="flex-none">
+        {/* Filtre par type de transaction */}
+        <TransactionTypeFilter
+          transactionType={transactionType}
+          setTransactionType={setTransactionType}
         />
+      </div>
+      <div className="mr-auto">
+        {/* Filtres de date */}
+        <DateFilter
+          onMonthChange={setSelectedMonth}
+          onYearChange={setSelectedYear}
+        />
+      </div>
+
+      {/* Conteneur principal qui prend tout l'espace disponible */}
+      <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(90vh-270px)]">
+        {/* Graphique circulaire des catégories - avec tous les filtres */}
+        <div className="bg-white rounded-lg p-15 shadow-lg border border-gray-100 overflow-auto">
+          <CategoryPieChart
+            transactions={transactions}
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+            transactionType={transactionType}
+          />
+        </div>
 
         {/* Liste des transactions */}
-        <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100">
+        <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100 overflow-auto">
           <h2 className="text-lg font-semibold mb-4">Transactions</h2>
           {formattedDate && (
             <div className="text-sm text-gray-500 mb-3">
