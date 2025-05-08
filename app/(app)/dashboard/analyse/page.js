@@ -54,11 +54,12 @@ export default function TransactionsPage() {
 
       {/* Conteneur pour le graphique et la liste */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {/* Graphique circulaire des catégories - maintenant avec filtres de date */}
+        {/* Graphique circulaire des catégories - avec tous les filtres */}
         <CategoryPieChart
           transactions={transactions}
           selectedMonth={selectedMonth}
           selectedYear={selectedYear}
+          transactionType={transactionType} // Ajout du type de transaction
         />
 
         {/* Liste des transactions */}

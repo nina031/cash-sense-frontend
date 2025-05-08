@@ -14,6 +14,7 @@ import { getCategoryInfo } from "@/utils/categoryUtils";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { filterTransactionsByDate } from "@/utils/dateUtils";
+import { TRANSACTION_TYPES } from "@/hooks/useTransactionTypeFilter";
 
 // Enregistrer les composants ECharts nécessaires
 echarts.use([
@@ -28,14 +29,15 @@ export default function CategoryPieChart({
   transactions = [],
   selectedMonth = "",
   selectedYear = "",
+  transactionType = TRANSACTION_TYPES.EXPENSES, // Paramètre avec valeur par défaut
 }) {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   const [currentLevel, setCurrentLevel] = useState("main");
   const [currentCategory, setCurrentCategory] = useState(null);
 
-  // Filtrer les transactions en fonction du mois et de l'année sélectionnés
-  const filteredTransactions = filterTransactionsByDate(
+  // Filtrer les transactions par date
+  const dateFilteredTransactions = filterTransactionsByDate(
     transactions,
     selectedMonth,
     selectedYear
@@ -43,20 +45,27 @@ export default function CategoryPieChart({
 
   // Fonction pour préparer les données du graphique
   const prepareChartData = () => {
-    // Ne prendre que les dépenses (montant positif)
-    const expenses = filteredTransactions.filter((tx) => tx.amount > 0);
+    // Filtrer par type de transaction (dépenses ou revenus)
+    const filteredByType = dateFilteredTransactions.filter((tx) => {
+      if (transactionType === TRANSACTION_TYPES.EXPENSES) {
+        return tx.amount > 0; // Dépenses: montant positif
+      } else if (transactionType === TRANSACTION_TYPES.INCOME) {
+        return tx.amount < 0; // Revenus: montant négatif
+      }
+      return true;
+    });
 
     if (currentLevel === "main") {
       // Premier niveau : catégories principales
       const categoriesMap = {};
 
       // Grouper par catégorie
-      expenses.forEach((tx) => {
+      filteredByType.forEach((tx) => {
         const categoryId = tx.category?.id || "other";
         if (!categoriesMap[categoryId]) {
           categoriesMap[categoryId] = 0;
         }
-        categoriesMap[categoryId] += tx.amount;
+        categoriesMap[categoryId] += Math.abs(tx.amount); // Utiliser la valeur absolue
       });
 
       // Convertir en format pour ECharts
@@ -74,7 +83,7 @@ export default function CategoryPieChart({
       const subcategoriesMap = {};
 
       // Filtrer les transactions de la catégorie sélectionnée
-      const categoryTransactions = expenses.filter(
+      const categoryTransactions = filteredByType.filter(
         (tx) => tx.category?.id === currentCategory
       );
 
@@ -84,7 +93,7 @@ export default function CategoryPieChart({
         if (!subcategoriesMap[subcategoryId]) {
           subcategoriesMap[subcategoryId] = 0;
         }
-        subcategoriesMap[subcategoryId] += tx.amount;
+        subcategoriesMap[subcategoryId] += Math.abs(tx.amount); // Utiliser la valeur absolue
       });
 
       // Convertir en format pour ECharts
@@ -106,25 +115,6 @@ export default function CategoryPieChart({
     setCurrentCategory(null);
   };
 
-  // Fonction pour obtenir le titre du graphique
-  const getChartTitle = () => {
-    let title =
-      currentLevel === "main"
-        ? "Dépenses par catégorie"
-        : `Dépenses - ${getCategoryInfo(currentCategory).name}`;
-
-    // Ajouter le mois et l'année au titre si filtrés
-    if (selectedMonth && selectedYear) {
-      title += ` - ${selectedMonth} ${selectedYear}`;
-    } else if (selectedMonth) {
-      title += ` - ${selectedMonth}`;
-    } else if (selectedYear) {
-      title += ` - ${selectedYear}`;
-    }
-
-    return title;
-  };
-
   // Initialiser et mettre à jour le graphique
   useEffect(() => {
     if (!chartRef.current) return;
@@ -134,21 +124,19 @@ export default function CategoryPieChart({
       chartInstance.current = echarts.init(chartRef.current);
     }
 
+    // Déterminer le type de données selon le filtre
+    const transactionTypeLabel =
+      transactionType === TRANSACTION_TYPES.EXPENSES ? "dépense" : "revenu";
+
     // Vérifier si nous avons des transactions filtrées
-    if (filteredTransactions.length === 0 && (selectedMonth || selectedYear)) {
+    if (
+      dateFilteredTransactions.length === 0 &&
+      (selectedMonth || selectedYear)
+    ) {
       // Si aucune transaction pour la période sélectionnée, afficher un message
       chartInstance.current.setOption({
         title: {
-          text: `Aucune dépense${selectedMonth ? ` en ${selectedMonth}` : ""}${
-            selectedYear ? ` ${selectedYear}` : ""
-          }`,
-          left: "center",
-          top: "5%",
-          textStyle: {
-            fontSize: 16,
-            fontWeight: "normal",
-            color: "#888",
-          },
+          show: false, // Cacher le titre
         },
         tooltip: {
           show: false,
@@ -171,14 +159,7 @@ export default function CategoryPieChart({
     if (transactions.length === 0) {
       chartInstance.current.setOption({
         title: {
-          text: "Aucune donnée disponible",
-          left: "center",
-          top: "center",
-          textStyle: {
-            fontSize: 16,
-            fontWeight: "normal",
-            color: "#888",
-          },
+          show: false, // Cacher le titre
         },
         tooltip: {
           show: false,
@@ -205,16 +186,7 @@ export default function CategoryPieChart({
       // Si aucune dépense après filtrage (même avec des transactions)
       chartInstance.current.setOption({
         title: {
-          text: `Aucune dépense${selectedMonth ? ` en ${selectedMonth}` : ""}${
-            selectedYear ? ` ${selectedYear}` : ""
-          }`,
-          left: "center",
-          top: "center",
-          textStyle: {
-            fontSize: 16,
-            fontWeight: "normal",
-            color: "#888",
-          },
+          show: false, // Cacher le titre
         },
         tooltip: {
           show: false,
@@ -236,8 +208,7 @@ export default function CategoryPieChart({
     // Configuration du graphique
     const option = {
       title: {
-        text: getChartTitle(),
-        left: "center",
+        show: false, // Cacher le titre
       },
       tooltip: {
         trigger: "item",
@@ -254,7 +225,6 @@ export default function CategoryPieChart({
       },
       series: [
         {
-          name: getChartTitle(),
           type: "pie",
           radius: ["40%", "70%"],
           avoidLabelOverlap: true,
@@ -301,12 +271,13 @@ export default function CategoryPieChart({
       chartInstance.current.off("click");
     };
   }, [
-    filteredTransactions,
+    dateFilteredTransactions,
     currentLevel,
     currentCategory,
     selectedMonth,
     selectedYear,
     transactions,
+    transactionType, // Ajout de la dépendance au type de transaction
   ]);
 
   // Redimensionner le graphique lorsque la fenêtre est redimensionnée
