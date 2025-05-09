@@ -14,11 +14,17 @@ import { useECharts } from "@/hooks/useECharts";
  *
  * @param {Array} transactions - List of transactions already filtered by date and type
  * @param {string} transactionType - Type of transactions (expenses or income)
+ * @param {Function} onSelectCategory - Callback for category selection
+ * @param {string} selectedCategory - Currently selected category ID
+ * @param {string} selectedSubcategory - Currently selected subcategory ID
  * @returns {React.Component}
  */
 export default function CategoryPieChart({
   transactions = [],
   transactionType,
+  onSelectCategory = () => {},
+  selectedCategory = null,
+  selectedSubcategory = null,
 }) {
   // Get data and methods from custom hooks
   const {
@@ -27,20 +33,79 @@ export default function CategoryPieChart({
     titleText,
     currentLevel,
     currentCategory,
+    currentSubcategory,
     handleDrillDown,
+    handleSubcategorySelect,
     handleBackClick,
     hasData,
-  } = useCategoryData(transactions, transactionType);
+  } = useCategoryData(
+    transactions,
+    transactionType,
+    selectedCategory,
+    selectedSubcategory
+  );
 
   // Handle click on chart slices
   const handleChartClick = useCallback(
     (data) => {
       if (currentLevel === "main" && data.categoryId) {
+        // Call the drill down internally for chart navigation
         handleDrillDown(data.categoryId);
+
+        // Notify the parent component about the selection
+        onSelectCategory(data.categoryId);
+      } else if (currentLevel === "subcategory" && data.subcategoryId) {
+        // Select the subcategory internally
+        handleSubcategorySelect(data.subcategoryId);
+
+        // Notify the parent component about subcategory selection
+        onSelectCategory(currentCategory, data.subcategoryId);
       }
     },
-    [currentLevel, handleDrillDown]
+    [
+      currentLevel,
+      currentCategory,
+      handleDrillDown,
+      handleSubcategorySelect,
+      onSelectCategory,
+    ]
   );
+
+  // Handle click on legend items
+  const handleLegendClick = useCallback(
+    (categoryId, subcategoryId = null) => {
+      if (currentLevel === "main" && categoryId) {
+        handleDrillDown(categoryId);
+        onSelectCategory(categoryId);
+      } else if (subcategoryId) {
+        handleSubcategorySelect(subcategoryId);
+        onSelectCategory(currentCategory, subcategoryId);
+      }
+    },
+    [
+      currentLevel,
+      currentCategory,
+      handleDrillDown,
+      handleSubcategorySelect,
+      onSelectCategory,
+    ]
+  );
+
+  // Handle back button click
+  const handleBackButtonClick = useCallback(() => {
+    // If we're at subcategory level with a specific subcategory selected
+    if (currentSubcategory) {
+      // Clear subcategory selection but stay at subcategory level
+      handleBackClick();
+      // Update parent's state to clear subcategory filter
+      onSelectCategory(currentCategory);
+    } else {
+      // We're at subcategory level without specific selection
+      // Go back to main and clear all filters
+      handleBackClick();
+      onSelectCategory(null);
+    }
+  }, [handleBackClick, onSelectCategory, currentCategory, currentSubcategory]);
 
   // Initialize ECharts
   const { chartRef, chartContainerRef } = useECharts(
@@ -57,14 +122,14 @@ export default function CategoryPieChart({
       <Button
         variant="ghost"
         size="sm"
-        onClick={handleBackClick}
+        onClick={handleBackButtonClick}
         className="flex items-center mb-2 bg-gray-100 hover:bg-gray-200"
       >
         <ChevronLeft className="mr-1" size={16} />
         Retour
       </Button>
     );
-  }, [currentLevel, handleBackClick]);
+  }, [currentLevel, currentSubcategory, handleBackButtonClick]);
 
   return (
     <div ref={chartContainerRef} className="w-full">
@@ -77,8 +142,9 @@ export default function CategoryPieChart({
         <div className="flex items-center">
           <CategoryLegend
             data={chartData}
-            onItemClick={handleDrillDown}
+            onItemClick={handleLegendClick}
             currentLevel={currentLevel}
+            selectedSubcategoryId={currentSubcategory}
           />
         </div>
 

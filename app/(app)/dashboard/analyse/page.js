@@ -6,11 +6,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useDemoMode } from "@/contexts/DemoContext";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useTransactionTypeFilter } from "@/hooks/useTransactionTypeFilter";
+import { useCategoryFilter } from "@/hooks/useCategoryFilter";
 import TransactionList from "@/components/TransactionList";
 import TransactionTypeFilter from "@/components/TransactionTypeFilter";
 import DateFilter from "@/components/DateFilter";
 import CategoryPieChart from "@/components/CategoryPieChart";
 import { formatDate, filterTransactionsByDate } from "@/utils/dateUtils";
+import { XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { getCategoryInfo } from "@/utils/categoryUtils";
 
 export default function TransactionsPage() {
   const { session } = useAuth();
@@ -28,7 +32,17 @@ export default function TransactionsPage() {
   const { transactionType, setTransactionType, filteredTransactions } =
     useTransactionTypeFilter(transactions);
 
-  // Memoize date-filtered transactions to avoid unnecessary recalculations
+  // Filtrer par catégorie (nouveau)
+  const {
+    selectedCategory,
+    selectedSubcategory,
+    selectCategory,
+    selectSubcategory,
+    clearCategoryFilters,
+    filterTransactionsByCategory,
+  } = useCategoryFilter();
+
+  // Memoize date-filtered transactions
   const dateFilteredTransactions = useMemo(() => {
     return filterTransactionsByDate(
       filteredTransactions,
@@ -37,6 +51,11 @@ export default function TransactionsPage() {
     );
   }, [filteredTransactions, selectedMonth, selectedYear]);
 
+  // Apply category filter after date filter (new)
+  const categoryFilteredTransactions = useMemo(() => {
+    return filterTransactionsByCategory(dateFilteredTransactions);
+  }, [dateFilteredTransactions, filterTransactionsByCategory]);
+
   // Memoize formatted date for display
   const formattedDate = useMemo(() => {
     return formatDate(selectedMonth, selectedYear);
@@ -44,8 +63,34 @@ export default function TransactionsPage() {
 
   // Memoize transaction count for display
   const transactionCount = useMemo(() => {
-    return dateFilteredTransactions.length;
-  }, [dateFilteredTransactions]);
+    return categoryFilteredTransactions.length;
+  }, [categoryFilteredTransactions]);
+
+  // Get category info for display (new)
+  const activeCategoryInfo = useMemo(() => {
+    if (!selectedCategory) return null;
+
+    if (selectedSubcategory) {
+      return getCategoryInfo(selectedCategory, selectedSubcategory);
+    }
+
+    return getCategoryInfo(selectedCategory);
+  }, [selectedCategory, selectedSubcategory]);
+
+  // Handle click on chart slices (new)
+  const handleChartSelection = (categoryId, subcategoryId = null) => {
+    if (categoryId === null) {
+      // Si categoryId est null, on supprime tous les filtres
+      clearCategoryFilters();
+    } else if (subcategoryId) {
+      // Si on a une sous-catégorie, on filtre par catégorie et sous-catégorie
+      selectCategory(categoryId);
+      selectSubcategory(subcategoryId);
+    } else {
+      // Sinon, on filtre uniquement par catégorie
+      selectCategory(categoryId);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -67,24 +112,54 @@ export default function TransactionsPage() {
 
       {/* Conteneur principal qui prend tout l'espace disponible */}
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(90vh-270px)]">
-        {/* Graphique circulaire des catégories - avec les données déjà filtrées */}
+        {/* Graphique circulaire des catégories */}
         <div className="bg-white rounded-lg p-15 shadow-lg border border-gray-100 overflow-auto">
           <CategoryPieChart
             transactions={dateFilteredTransactions}
             transactionType={transactionType}
+            onSelectCategory={handleChartSelection}
+            selectedCategory={selectedCategory}
+            selectedSubcategory={selectedSubcategory}
           />
         </div>
 
-        {/* Liste des transactions - avec les mêmes données filtrées */}
+        {/* Liste des transactions */}
         <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100 overflow-auto">
-          <h2 className="text-lg font-semibold mb-4">Transactions</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Transactions</h2>
+
+            {/* Afficher le filtre actif et bouton pour l'effacer */}
+            {selectedCategory && (
+              <div className="flex items-center">
+                <div className="flex items-center bg-gray-100 rounded-md py-1 px-3 mr-2">
+                  <div
+                    className="w-3 h-3 rounded-full mr-2"
+                    style={{ backgroundColor: activeCategoryInfo?.color }}
+                  ></div>
+                  <span className="text-sm font-medium">
+                    {activeCategoryInfo?.name}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearCategoryFilters}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <XCircle size={16} />
+                </Button>
+              </div>
+            )}
+          </div>
+
           {formattedDate && (
             <div className="text-sm text-gray-500 mb-3">
               Nombre de transactions: {transactionCount}
             </div>
           )}
+
           <TransactionList
-            transactions={dateFilteredTransactions}
+            transactions={categoryFilteredTransactions}
             loading={loading}
             error={error}
           />
