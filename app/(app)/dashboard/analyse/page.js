@@ -1,12 +1,10 @@
 // app/(app)/dashboard/analyse/page.js
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDemoMode } from "@/contexts/DemoContext";
 import { useTransactions } from "@/hooks/useTransactions";
-import { useTransactionTypeFilter } from "@/hooks/useTransactionTypeFilter";
-import { useCategoryFilter } from "@/hooks/useCategoryFilter";
 import TransactionList from "@/components/TransactionList";
 import TransactionTypeFilter from "@/components/TransactionTypeFilter";
 import DateFilter from "@/components/DateFilter";
@@ -15,58 +13,70 @@ import { formatDate, filterTransactionsByDate } from "@/utils/dateUtils";
 import { XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getCategoryInfo } from "@/utils/categoryUtils";
+import { filterTransactionsByType } from "@/utils/transactionUtils";
+import { useFiltersStore } from "@/stores/useFiltersStore";
 
 export default function TransactionsPage() {
   const { session } = useAuth();
   const { isDemoMode } = useDemoMode();
   const userId = session?.user?.id;
 
-  // États pour les filtres de date
-  const [selectedMonth, setSelectedMonth] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
+  // Récupérer l'état et les actions depuis le store Zustand étendu
+  const {
+    transactionType,
+    selectedCategory,
+    selectedSubcategory,
+    selectedMonth,
+    selectedYear,
+    clearCategoryFilters,
+  } = useFiltersStore();
 
   // Charger toutes les transactions
   const { transactions, loading, error } = useTransactions(userId);
 
-  // Filtrer par type (Dépenses/Revenus)
-  const { transactionType, setTransactionType, filteredTransactions } =
-    useTransactionTypeFilter(transactions);
+  // Filtrer les transactions par type (Dépenses/Revenus)
+  const filteredByTypeTransactions = useMemo(() => {
+    return filterTransactionsByType(transactions, transactionType);
+  }, [transactions, transactionType]);
 
-  // Filtrer par catégorie (nouveau)
-  const {
-    selectedCategory,
-    selectedSubcategory,
-    selectCategory,
-    selectSubcategory,
-    clearCategoryFilters,
-    filterTransactionsByCategory,
-  } = useCategoryFilter();
-
-  // Memoize date-filtered transactions
+  // Filtrer les transactions par date
   const dateFilteredTransactions = useMemo(() => {
     return filterTransactionsByDate(
-      filteredTransactions,
+      filteredByTypeTransactions,
       selectedMonth,
       selectedYear
     );
-  }, [filteredTransactions, selectedMonth, selectedYear]);
+  }, [filteredByTypeTransactions, selectedMonth, selectedYear]);
 
-  // Apply category filter after date filter (new)
+  // Filtrer les transactions par catégorie
   const categoryFilteredTransactions = useMemo(() => {
-    return filterTransactionsByCategory(dateFilteredTransactions);
-  }, [dateFilteredTransactions, filterTransactionsByCategory]);
+    if (!selectedCategory) return dateFilteredTransactions;
 
-  // Memoize formatted date for display
+    return dateFilteredTransactions.filter((transaction) => {
+      // Vérifier la catégorie principale
+      if (transaction.category?.id !== selectedCategory) return false;
+
+      // Si une sous-catégorie est sélectionnée, filtrer aussi par sous-catégorie
+      if (selectedSubcategory) {
+        return transaction.category?.subcategory?.id === selectedSubcategory;
+      }
+
+      // Si seulement la catégorie principale est sélectionnée
+      return true;
+    });
+  }, [dateFilteredTransactions, selectedCategory, selectedSubcategory]);
+
+  // Formater la date pour l'affichage
   const formattedDate = useMemo(() => {
     return formatDate(selectedMonth, selectedYear);
   }, [selectedMonth, selectedYear]);
 
-  // Memoize transaction count for display
+  // Obtenir le nombre de transactions après tous les filtres
   const transactionCount = useMemo(() => {
     return categoryFilteredTransactions.length;
   }, [categoryFilteredTransactions]);
 
-  // Get category info for display (new)
+  // Obtenir les informations de la catégorie active (pour l'affichage)
   const activeCategoryInfo = useMemo(() => {
     if (!selectedCategory) return null;
 
@@ -77,50 +87,23 @@ export default function TransactionsPage() {
     return getCategoryInfo(selectedCategory);
   }, [selectedCategory, selectedSubcategory]);
 
-  // Handle click on chart slices (new)
-  const handleChartSelection = (categoryId, subcategoryId = null) => {
-    if (categoryId === null) {
-      // Si categoryId est null, on supprime tous les filtres
-      clearCategoryFilters();
-    } else if (subcategoryId) {
-      // Si on a une sous-catégorie, on filtre par catégorie et sous-catégorie
-      selectCategory(categoryId);
-      selectSubcategory(subcategoryId);
-    } else {
-      // Sinon, on filtre uniquement par catégorie
-      selectCategory(categoryId);
-    }
-  };
-
   return (
     <div className="flex flex-col h-full">
       {/* Filtres en haut de la page avec taille fixe */}
       <div className="flex-none">
         {/* Filtre par type de transaction */}
-        <TransactionTypeFilter
-          transactionType={transactionType}
-          setTransactionType={setTransactionType}
-        />
+        <TransactionTypeFilter />
       </div>
       <div className="mr-auto">
         {/* Filtres de date */}
-        <DateFilter
-          onMonthChange={setSelectedMonth}
-          onYearChange={setSelectedYear}
-        />
+        <DateFilter />
       </div>
 
       {/* Conteneur principal qui prend tout l'espace disponible */}
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(90vh-270px)]">
         {/* Graphique circulaire des catégories */}
         <div className="bg-white rounded-lg p-15 shadow-lg border border-gray-100 overflow-auto">
-          <CategoryPieChart
-            transactions={dateFilteredTransactions}
-            transactionType={transactionType}
-            onSelectCategory={handleChartSelection}
-            selectedCategory={selectedCategory}
-            selectedSubcategory={selectedSubcategory}
-          />
+          <CategoryPieChart transactions={dateFilteredTransactions} />
         </div>
 
         {/* Liste des transactions */}

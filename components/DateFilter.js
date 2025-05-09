@@ -1,6 +1,7 @@
 // components/DateFilter.js
 "use client";
 
+import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
@@ -8,21 +9,36 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useDateFilter } from "@/hooks/useDateFilter";
 import { MONTHS } from "@/utils/dateUtils";
+import { useFiltersStore } from "@/stores/useFiltersStore";
 
-export default function DateFilter({ onMonthChange, onYearChange }) {
-  const {
-    selectedMonth,
-    selectedYear,
-    isMonthOpen,
-    isYearOpen,
-    years,
-    setIsMonthOpen,
-    setIsYearOpen,
-    handleMonthChange,
-    handleYearChange,
-  } = useDateFilter(onMonthChange, onYearChange);
+export default function DateFilter() {
+  // États locaux pour les dropdowns
+  const [isMonthOpen, setIsMonthOpen] = useState(false);
+  const [isYearOpen, setIsYearOpen] = useState(false);
+
+  // Récupérer l'état et les actions depuis le store
+  const selectedMonth = useFiltersStore((state) => state.selectedMonth);
+  const selectedYear = useFiltersStore((state) => state.selectedYear);
+  const setSelectedMonth = useFiltersStore((state) => state.setSelectedMonth);
+  const setSelectedYear = useFiltersStore((state) => state.setSelectedYear);
+
+  // Obtenir les années pour le dropdown (actuelle et 5 années précédentes)
+  const years = (() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 6 }, (_, index) => currentYear - index);
+  })();
+
+  // Gestionnaires d'événements
+  const handleMonthChange = (month) => {
+    setSelectedMonth(month);
+    setIsMonthOpen(false);
+  };
+
+  const handleYearChange = (year) => {
+    setSelectedYear(year);
+    setIsYearOpen(false);
+  };
 
   return (
     <div className="flex justify-center gap-4 py-6">

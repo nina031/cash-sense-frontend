@@ -1,16 +1,21 @@
 // components/TransactionTypeFilter.js
 import React from "react";
+import { useFiltersStore } from "@/stores/useFiltersStore";
 import { TRANSACTION_TYPES } from "@/hooks/useTransactionTypeFilter";
 
 /**
  * Component for filtering transactions by type (expenses or income)
- * Memoized to prevent unnecessary re-renders
+ * Uses Zustand store for state management
  *
- * @param {string} transactionType - Current transaction type
- * @param {Function} setTransactionType - Function to update transaction type
  * @returns {React.Component}
  */
-function TransactionTypeFilter({ transactionType, setTransactionType }) {
+function TransactionTypeFilter() {
+  // Get state and actions from the store
+  const transactionType = useFiltersStore((state) => state.transactionType);
+  const setTransactionType = useFiltersStore(
+    (state) => state.setTransactionType
+  );
+
   return (
     <div>
       <div className="flex justify-center">

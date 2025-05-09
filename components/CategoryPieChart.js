@@ -1,135 +1,202 @@
 // components/CategoryPieChart.js
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import CategoryLegend from "@/components/CategoryLegend";
 import ChartTitle from "@/components/ChartTitle";
-import { useCategoryData } from "@/hooks/useCategoryData";
 import { useECharts } from "@/hooks/useECharts";
+import { useFiltersStore } from "@/stores/useFiltersStore";
+import {
+  groupTransactionsByCategory,
+  groupTransactionsBySubcategory,
+  calculateTotalAmount,
+} from "@/utils/transactionUtils";
+import { getCategoryInfo } from "@/utils/categoryUtils";
+import { TRANSACTION_TYPES } from "@/hooks/useTransactionTypeFilter";
 
 /**
  * Component for displaying transaction categories in a pie chart
+ * Uses Zustand store for state management
  *
  * @param {Array} transactions - List of transactions already filtered by date and type
- * @param {string} transactionType - Type of transactions (expenses or income)
- * @param {Function} onSelectCategory - Callback for category selection
- * @param {string} selectedCategory - Currently selected category ID
- * @param {string} selectedSubcategory - Currently selected subcategory ID
  * @returns {React.Component}
  */
-export default function CategoryPieChart({
-  transactions = [],
-  transactionType,
-  onSelectCategory = () => {},
-  selectedCategory = null,
-  selectedSubcategory = null,
-}) {
-  // Get data and methods from custom hooks
+export default function CategoryPieChart({ transactions = [] }) {
+  // Get state and actions from the store
   const {
-    chartData,
-    totalAmount,
-    titleText,
-    currentLevel,
-    currentCategory,
-    currentSubcategory,
-    handleDrillDown,
-    handleSubcategorySelect,
-    handleBackClick,
-    hasData,
-  } = useCategoryData(
-    transactions,
     transactionType,
     selectedCategory,
-    selectedSubcategory
-  );
+    selectedSubcategory,
+    chartLevel,
+    handleChartSelection,
+    handleBackClick,
+  } = useFiltersStore();
+
+  // Calculate total amount
+  const totalAmount = useMemo(() => {
+    // Si nous sommes au niveau principal, utiliser toutes les transactions
+    if (chartLevel === "main") {
+      return calculateTotalAmount(transactions);
+    }
+
+    // Si nous sommes au niveau sous-catégorie
+    let categoryTransactions = transactions.filter(
+      (tx) => tx.category?.id === selectedCategory
+    );
+
+    // Si une sous-catégorie est sélectionnée, filtrer davantage
+    if (selectedSubcategory) {
+      categoryTransactions = categoryTransactions.filter(
+        (tx) => tx.category?.subcategory?.id === selectedSubcategory
+      );
+    }
+
+    return calculateTotalAmount(categoryTransactions);
+  }, [transactions, chartLevel, selectedCategory, selectedSubcategory]);
+
+  // Generate chart data based on current level and filters
+  const chartData = useMemo(() => {
+    if (chartLevel === "main") {
+      // Premier niveau: catégories principales
+      const categoriesMap = groupTransactionsByCategory(transactions);
+
+      // Convertir en format pour ECharts et notre légende personnalisée
+      return Object.keys(categoriesMap).map((categoryId) => {
+        const { name, color, IconComponent } = getCategoryInfo(categoryId);
+        return {
+          value: categoriesMap[categoryId],
+          name: name,
+          itemStyle: { color },
+          categoryId,
+          IconComponent, // Pour notre légende personnalisée
+        };
+      });
+    } else {
+      // Second niveau: sous-catégories
+      // Si une sous-catégorie est sélectionnée, ne montrer que celle-ci en surbrillance
+      if (selectedSubcategory) {
+        const allSubcategoriesMap = groupTransactionsBySubcategory(
+          transactions.filter((tx) => tx.category?.id === selectedCategory),
+          selectedCategory
+        );
+
+        // Créer les données du graphique avec la sous-catégorie sélectionnée en surbrillance
+        return Object.keys(allSubcategoriesMap).map((subcategoryId) => {
+          const { name, color, IconComponent } = getCategoryInfo(
+            selectedCategory,
+            subcategoryId
+          );
+
+          // Mettre en surbrillance la sous-catégorie sélectionnée
+          const isSelected = subcategoryId === selectedSubcategory;
+          const adjustedColor = isSelected ? color : `${color}80`; // Ajouter de la transparence aux éléments non sélectionnés
+
+          return {
+            value: allSubcategoriesMap[subcategoryId],
+            name: name,
+            itemStyle: {
+              color: adjustedColor,
+              // Ajouter une bordure ou autre mise en valeur à l'élément sélectionné
+              borderWidth: isSelected ? 2 : 0,
+              borderColor: isSelected ? "#fff" : "transparent",
+              shadowBlur: isSelected ? 10 : 0,
+              shadowColor: isSelected ? "rgba(0, 0, 0, 0.3)" : "transparent",
+            },
+            subcategoryId,
+            IconComponent,
+          };
+        });
+      } else {
+        // Vue normale des sous-catégories (pas de sélection spécifique)
+        const subcategoriesMap = groupTransactionsBySubcategory(
+          transactions,
+          selectedCategory
+        );
+
+        // Convertir en format pour ECharts et notre légende personnalisée
+        return Object.keys(subcategoriesMap).map((subcategoryId) => {
+          const { name, color, IconComponent } = getCategoryInfo(
+            selectedCategory,
+            subcategoryId
+          );
+          return {
+            value: subcategoriesMap[subcategoryId],
+            name: name,
+            itemStyle: { color },
+            subcategoryId,
+            IconComponent, // Pour notre légende personnalisée
+          };
+        });
+      }
+    }
+  }, [transactions, chartLevel, selectedCategory, selectedSubcategory]);
+
+  // Title text based on current level and selections
+  const titleText = useMemo(() => {
+    if (chartLevel === "main") {
+      return `Total des ${
+        transactionType === TRANSACTION_TYPES.EXPENSES ? "dépenses" : "revenus"
+      }`;
+    } else if (selectedSubcategory) {
+      return getCategoryInfo(selectedCategory, selectedSubcategory).name;
+    } else if (selectedCategory) {
+      return getCategoryInfo(selectedCategory).name;
+    } else {
+      return "Toutes les transactions";
+    }
+  }, [chartLevel, selectedCategory, selectedSubcategory, transactionType]);
 
   // Handle click on chart slices
   const handleChartClick = useCallback(
     (data) => {
-      if (currentLevel === "main" && data.categoryId) {
-        // Call the drill down internally for chart navigation
-        handleDrillDown(data.categoryId);
-
-        // Notify the parent component about the selection
-        onSelectCategory(data.categoryId);
-      } else if (currentLevel === "subcategory" && data.subcategoryId) {
-        // Select the subcategory internally
-        handleSubcategorySelect(data.subcategoryId);
-
-        // Notify the parent component about subcategory selection
-        onSelectCategory(currentCategory, data.subcategoryId);
+      if (chartLevel === "main" && data.categoryId) {
+        // Sélectionner la catégorie
+        handleChartSelection(data.categoryId);
+      } else if (chartLevel === "subcategory" && data.subcategoryId) {
+        // Sélectionner la sous-catégorie
+        handleChartSelection(selectedCategory, data.subcategoryId);
       }
     },
-    [
-      currentLevel,
-      currentCategory,
-      handleDrillDown,
-      handleSubcategorySelect,
-      onSelectCategory,
-    ]
+    [chartLevel, selectedCategory, handleChartSelection]
   );
 
   // Handle click on legend items
   const handleLegendClick = useCallback(
     (categoryId, subcategoryId = null) => {
-      if (currentLevel === "main" && categoryId) {
-        handleDrillDown(categoryId);
-        onSelectCategory(categoryId);
+      if (chartLevel === "main" && categoryId) {
+        handleChartSelection(categoryId);
       } else if (subcategoryId) {
-        handleSubcategorySelect(subcategoryId);
-        onSelectCategory(currentCategory, subcategoryId);
+        handleChartSelection(selectedCategory, subcategoryId);
       }
     },
-    [
-      currentLevel,
-      currentCategory,
-      handleDrillDown,
-      handleSubcategorySelect,
-      onSelectCategory,
-    ]
+    [chartLevel, selectedCategory, handleChartSelection]
   );
-
-  // Handle back button click
-  const handleBackButtonClick = useCallback(() => {
-    // If we're at subcategory level with a specific subcategory selected
-    if (currentSubcategory) {
-      // Clear subcategory selection but stay at subcategory level
-      handleBackClick();
-      // Update parent's state to clear subcategory filter
-      onSelectCategory(currentCategory);
-    } else {
-      // We're at subcategory level without specific selection
-      // Go back to main and clear all filters
-      handleBackClick();
-      onSelectCategory(null);
-    }
-  }, [handleBackClick, onSelectCategory, currentCategory, currentSubcategory]);
 
   // Initialize ECharts
   const { chartRef, chartContainerRef } = useECharts(
     chartData,
     handleChartClick,
-    hasData
+    transactions.length > 0
   );
 
   // Render back button only in subcategory view
   const renderBackButton = useCallback(() => {
-    if (currentLevel !== "subcategory") return null;
+    if (chartLevel !== "subcategory") return null;
 
     return (
       <Button
         variant="ghost"
         size="sm"
-        onClick={handleBackButtonClick}
+        onClick={handleBackClick}
         className="flex items-center mb-2 bg-gray-100 hover:bg-gray-200"
       >
         <ChevronLeft className="mr-1" size={16} />
         Retour
       </Button>
     );
-  }, [currentLevel, currentSubcategory, handleBackButtonClick]);
+  }, [chartLevel, handleBackClick]);
 
   return (
     <div ref={chartContainerRef} className="w-full">
@@ -143,8 +210,8 @@ export default function CategoryPieChart({
           <CategoryLegend
             data={chartData}
             onItemClick={handleLegendClick}
-            currentLevel={currentLevel}
-            selectedSubcategoryId={currentSubcategory}
+            currentLevel={chartLevel}
+            selectedSubcategoryId={selectedSubcategory}
           />
         </div>
 
