@@ -98,10 +98,9 @@ export default function CategoryPieChart({
     setCurrentLevel("subcategory");
   };
 
-  // Calculer la somme totale
-  const totalAmount = useMemo(() => {
-    // Filtrer par type de transaction (dépenses ou revenus)
-    const filteredByType = dateFilteredTransactions.filter((tx) => {
+  // Filtrer par type de transaction (dépenses ou revenus)
+  const filteredByType = useMemo(() => {
+    return dateFilteredTransactions.filter((tx) => {
       if (transactionType === TRANSACTION_TYPES.EXPENSES) {
         return tx.amount > 0;
       } else if (transactionType === TRANSACTION_TYPES.INCOME) {
@@ -109,23 +108,26 @@ export default function CategoryPieChart({
       }
       return true;
     });
-
-    // Calculer la somme
-    return filteredByType.reduce((total, tx) => total + Math.abs(tx.amount), 0);
   }, [dateFilteredTransactions, transactionType]);
+
+  // Calculer la somme totale en fonction du niveau actuel
+  const totalAmount = useMemo(() => {
+    if (currentLevel === "main") {
+      // Afficher le total de toutes les transactions
+      return filteredByType.reduce(
+        (total, tx) => total + Math.abs(tx.amount),
+        0
+      );
+    } else {
+      // Afficher uniquement le total de la catégorie sélectionnée
+      return filteredByType
+        .filter((tx) => tx.category?.id === currentCategory)
+        .reduce((total, tx) => total + Math.abs(tx.amount), 0);
+    }
+  }, [filteredByType, currentLevel, currentCategory]);
 
   // Utiliser useMemo pour calculer les données du graphique
   const chartData = useMemo(() => {
-    // Filtrer par type de transaction (dépenses ou revenus)
-    const filteredByType = dateFilteredTransactions.filter((tx) => {
-      if (transactionType === TRANSACTION_TYPES.EXPENSES) {
-        return tx.amount > 0;
-      } else if (transactionType === TRANSACTION_TYPES.INCOME) {
-        return tx.amount < 0;
-      }
-      return true;
-    });
-
     if (currentLevel === "main") {
       // Premier niveau : catégories principales
       const categoriesMap = {};
@@ -183,12 +185,7 @@ export default function CategoryPieChart({
         };
       });
     }
-  }, [
-    dateFilteredTransactions,
-    currentLevel,
-    currentCategory,
-    transactionType,
-  ]);
+  }, [filteredByType, currentLevel, currentCategory]);
 
   // Fonction pour revenir aux catégories principales
   const handleBackClick = () => {
@@ -325,7 +322,7 @@ export default function CategoryPieChart({
             ? "dépenses"
             : "revenus"
         }`
-      : `Détail de la catégorie ${getCategoryInfo(currentCategory).name}`;
+      : `${getCategoryInfo(currentCategory).name}`;
 
   return (
     <div ref={chartContainerRef} className="w-full">
@@ -335,7 +332,7 @@ export default function CategoryPieChart({
           variant="ghost"
           size="sm"
           onClick={handleBackClick}
-          className="flex items-center mb-2"
+          className="flex items-center mb-2 bg-gray-100 hover:bg-gray-200"
         >
           <ChevronLeft className="mr-1" size={16} />
           Retour
