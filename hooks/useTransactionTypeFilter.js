@@ -1,25 +1,28 @@
 // hooks/useTransactionTypeFilter.js
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { filterTransactionsByType } from "@/utils/transactionUtils";
 
 export const TRANSACTION_TYPES = {
   EXPENSES: "Dépenses",
   INCOME: "Revenus",
 };
 
+/**
+ * Hook to filter transactions by type (expenses or income)
+ *
+ * @param {Array} transactions - List of transactions to filter
+ * @returns {Object} - Transaction type state and filtered transactions
+ */
 export function useTransactionTypeFilter(transactions = []) {
   const [transactionType, setTransactionType] = useState(
     TRANSACTION_TYPES.EXPENSES
   );
 
-  // Filtrer les transactions selon le type sélectionné
-  const filteredTransactions = transactions.filter((transaction) => {
-    if (transactionType === TRANSACTION_TYPES.EXPENSES) {
-      return transaction.amount > 0; // Dépenses: montant positif
-    } else if (transactionType === TRANSACTION_TYPES.INCOME) {
-      return transaction.amount < 0; // Revenus: montant négatif
-    }
-    return true;
-  });
+  // Memoize the filtered transactions to avoid unnecessary re-renders
+  const filteredTransactions = useMemo(
+    () => filterTransactionsByType(transactions, transactionType),
+    [transactions, transactionType]
+  );
 
   return {
     transactionType,

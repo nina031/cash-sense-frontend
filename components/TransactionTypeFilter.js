@@ -1,10 +1,16 @@
 // components/TransactionTypeFilter.js
+import React from "react";
 import { TRANSACTION_TYPES } from "@/hooks/useTransactionTypeFilter";
 
-export default function TransactionTypeFilter({
-  transactionType,
-  setTransactionType,
-}) {
+/**
+ * Component for filtering transactions by type (expenses or income)
+ * Memoized to prevent unnecessary re-renders
+ *
+ * @param {string} transactionType - Current transaction type
+ * @param {Function} setTransactionType - Function to update transaction type
+ * @returns {React.Component}
+ */
+function TransactionTypeFilter({ transactionType, setTransactionType }) {
   return (
     <div>
       <div className="flex justify-center">
@@ -38,3 +44,6 @@ export default function TransactionTypeFilter({
     </div>
   );
 }
+
+// Memoize the component to avoid unnecessary re-renders
+export default React.memo(TransactionTypeFilter);
