@@ -1,12 +1,11 @@
 // components/CategoryPieChart.js
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import CategoryLegend from "@/components/CategoryLegend";
 import ChartTitle from "@/components/ChartTitle";
-import { useECharts } from "@/hooks/useECharts";
 import { useFiltersStore } from "@/stores/useFiltersStore";
 import {
   groupTransactionsByCategory,
@@ -15,6 +14,23 @@ import {
 } from "@/utils/transactionUtils";
 import { getCategoryInfo } from "@/utils/categoryUtils";
 import { TRANSACTION_TYPES } from "@/hooks/useTransactionTypeFilter";
+import * as echarts from "echarts/core";
+import { PieChart } from "echarts/charts";
+import {
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent,
+} from "echarts/components";
+import { CanvasRenderer } from "echarts/renderers";
+
+// Register necessary ECharts components
+echarts.use([
+  PieChart,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent,
+  CanvasRenderer,
+]);
 
 /**
  * Component for displaying transaction categories in a pie chart
@@ -33,6 +49,13 @@ export default function CategoryPieChart({ transactions = [] }) {
     handleChartSelection,
     handleBackClick,
   } = useFiltersStore();
+
+  // Refs for chart
+  const chartRef = useRef(null);
+  const chartContainerRef = useRef(null);
+  const chartInstance = useRef(null);
+  const isAnimating = useRef(false);
+  const prevLevelRef = useRef(chartLevel);
 
   // Calculate total amount
   const totalAmount = useMemo(() => {
@@ -148,19 +171,200 @@ export default function CategoryPieChart({ transactions = [] }) {
     }
   }, [chartLevel, selectedCategory, selectedSubcategory, transactionType]);
 
-  // Handle click on chart slices
-  const handleChartClick = useCallback(
-    (data) => {
-      if (chartLevel === "main" && data.categoryId) {
-        // Sélectionner la catégorie
-        handleChartSelection(data.categoryId);
-      } else if (chartLevel === "subcategory" && data.subcategoryId) {
-        // Sélectionner la sous-catégorie
-        handleChartSelection(selectedCategory, data.subcategoryId);
+  // Initialize chart
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+    // Create chart instance if it doesn't exist
+    if (!chartInstance.current) {
+      chartInstance.current = echarts.init(chartRef.current);
+
+      // Set up resize observer for the chart container
+      const resizeObserver = new ResizeObserver(() => {
+        if (chartInstance.current) {
+          chartInstance.current.resize();
+        }
+      });
+
+      if (chartContainerRef.current) {
+        resizeObserver.observe(chartContainerRef.current);
       }
-    },
-    [chartLevel, selectedCategory, handleChartSelection]
-  );
+
+      // Clean up when component unmounts
+      return () => {
+        resizeObserver.disconnect();
+        if (chartInstance.current) {
+          chartInstance.current.dispose();
+          chartInstance.current = null;
+        }
+      };
+    }
+  }, []);
+
+  // Function to update chart with animation
+  const updateChart = useCallback((data, animate = false) => {
+    if (!chartInstance.current) return;
+
+    if (!data || data.length === 0) {
+      chartInstance.current.setOption({
+        series: [{ type: "pie", data: [] }],
+      });
+      return;
+    }
+
+    // Base chart options - always using donut chart (anneau)
+    const option = {
+      tooltip: {
+        trigger: "item",
+        formatter: "{b}: {c} € ({d}%)",
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        borderColor: "#ccc",
+        borderWidth: 1,
+        textStyle: { color: "#333" },
+        extraCssText: "box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);",
+      },
+      series: [
+        {
+          type: "pie",
+          // Always use the donut shape (anneau) with inner radius of 30%
+          radius: ["30%", "75%"],
+          center: ["50%", "50%"],
+          avoidLabelOverlap: true,
+          itemStyle: {
+            borderRadius: 6,
+            borderWidth: 2,
+            borderColor: "#fff",
+          },
+          label: { show: false },
+          emphasis: {
+            label: { show: true, fontSize: 14, fontWeight: "bold" },
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: "rgba(0, 0, 0, 0.2)",
+            },
+          },
+          labelLine: { show: false },
+          data: data,
+          animationDuration: animate ? 800 : 0,
+          animationEasing: "cubicInOut",
+        },
+      ],
+    };
+
+    // Update chart with new options
+    chartInstance.current.setOption(option, true);
+  }, []);
+
+  // Handle animated transitions between levels
+  useEffect(() => {
+    if (!chartInstance.current || isAnimating.current) return;
+
+    const hasLevelChanged = prevLevelRef.current !== chartLevel;
+    if (hasLevelChanged) {
+      isAnimating.current = true;
+
+      // Display the chart with animation
+      updateChart(chartData, true);
+
+      // Add special highlight/zoom effect on the selected category during drill-down
+      if (chartLevel === "subcategory" && prevLevelRef.current === "main") {
+        // Find the index of the selected category in the data
+        const selectedIndex = chartData.findIndex(
+          (item) =>
+            item.categoryId === selectedCategory ||
+            item.subcategoryId === selectedSubcategory
+        );
+
+        if (selectedIndex >= 0) {
+          // Apply highlight and expansion animation to the selected sector
+          setTimeout(() => {
+            chartInstance.current.dispatchAction({
+              type: "pieSelect",
+              seriesIndex: 0,
+              dataIndex: selectedIndex,
+            });
+
+            // Add a delayed highlight/unhighlight for visual effect
+            setTimeout(() => {
+              chartInstance.current.dispatchAction({
+                type: "pieUnSelect",
+                seriesIndex: 0,
+                dataIndex: selectedIndex,
+              });
+              isAnimating.current = false;
+            }, 500);
+          }, 300);
+        } else {
+          isAnimating.current = false;
+        }
+      } else {
+        // For other transitions
+        setTimeout(() => {
+          isAnimating.current = false;
+        }, 800);
+      }
+
+      // Update the previous level reference
+      prevLevelRef.current = chartLevel;
+    } else {
+      // If just the data changed but not the level, update without special animation
+      updateChart(chartData, true);
+    }
+  }, [
+    chartLevel,
+    chartData,
+    updateChart,
+    selectedCategory,
+    selectedSubcategory,
+  ]);
+
+  // Set up click handler for the chart
+  useEffect(() => {
+    if (!chartInstance.current) return;
+
+    // Remove old event handlers
+    chartInstance.current.off("click");
+
+    // Add click handler
+    chartInstance.current.on("click", (params) => {
+      if (params.data) {
+        if (chartLevel === "main" && params.data.categoryId) {
+          // Select category
+          handleChartSelection(params.data.categoryId);
+        } else if (chartLevel === "subcategory" && params.data.subcategoryId) {
+          // Select subcategory
+          handleChartSelection(selectedCategory, params.data.subcategoryId);
+        }
+      }
+    });
+
+    // Clean up when component unmounts or dependencies change
+    return () => {
+      if (chartInstance.current) {
+        chartInstance.current.off("click");
+      }
+    };
+  }, [chartLevel, selectedCategory, handleChartSelection]);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (chartInstance.current) {
+        chartInstance.current.resize();
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Initial chart update when component mounts
+  useEffect(() => {
+    if (chartInstance.current && chartData.length > 0) {
+      updateChart(chartData, false);
+    }
+  }, []);
 
   // Handle click on legend items
   const handleLegendClick = useCallback(
@@ -172,13 +376,6 @@ export default function CategoryPieChart({ transactions = [] }) {
       }
     },
     [chartLevel, selectedCategory, handleChartSelection]
-  );
-
-  // Initialize ECharts
-  const { chartRef, chartContainerRef } = useECharts(
-    chartData,
-    handleChartClick,
-    transactions.length > 0
   );
 
   // Render back button only in subcategory view
@@ -199,12 +396,12 @@ export default function CategoryPieChart({ transactions = [] }) {
   }, [chartLevel, handleBackClick]);
 
   return (
-    <div ref={chartContainerRef} className="w-full">
+    <div ref={chartContainerRef} className="w-full h-full">
       {/* Back button (only visible in subcategory mode) */}
       {renderBackButton()}
 
       {/* Chart and legend side by side */}
-      <div className="flex flex-row">
+      <div className="flex flex-row h-full">
         {/* Legend on the left */}
         <div className="flex items-center">
           <CategoryLegend
@@ -216,15 +413,18 @@ export default function CategoryPieChart({ transactions = [] }) {
         </div>
 
         {/* Pie chart on the right with aligned title */}
-        <div className="w-2/3">
+        <div className="w-2/3 h-full">
           {/* Title and amount aligned with the chart */}
-          <div>
-            <ChartTitle title={titleText} amount={totalAmount} />
+          <div className="h-full flex flex-col">
+            <div>
+              <ChartTitle title={titleText} amount={totalAmount} />
+            </div>
 
             {/* Chart */}
             <div
               ref={chartRef}
-              style={{ height: "300px", width: "100%" }}
+              className="flex-grow"
+              style={{ minHeight: "300px", width: "100%" }}
             ></div>
           </div>
         </div>
