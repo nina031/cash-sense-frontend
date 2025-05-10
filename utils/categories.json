@@ -19,7 +19,7 @@
         "name": "Fast Food",
         "nameFr": "Fast Food",
         "iconName": "Pizza",
-        "color": "#FF8397"
+        "color": "#FF7694"
       },
       "bars": {
         "id": "bars",
@@ -33,14 +33,14 @@
         "name": "Groceries",
         "nameFr": "Courses alimentaires",
         "iconName": "ShoppingBag",
-        "color": "#FF5A7A"
+        "color": "#FF89A3"
       },
       "coffeeShop": {
         "id": "coffeeShop",
         "name": "Cafe & Bakery",
         "nameFr": "Café & Boulangerie",
         "iconName": "Coffee",
-        "color": "#FF7A91"
+        "color": "#FFA1B5"
       }
     }
   },
@@ -50,7 +50,7 @@
     "name": "Shopping",
     "nameFr": "Shopping",
     "iconName": "ShoppingCart",
-    "color": "#FF9F40",
+    "color": "#f8961e",
     "keywords": ["shop", "store", "retail", "amazon", "buy"],
     "subcategories": {
       "clothing": {
@@ -58,35 +58,35 @@
         "name": "Clothing & Accessories",
         "nameFr": "Vêtements & Accessoires",
         "iconName": "Shirt",
-        "color": "#FF9F40"
+        "color": "#f8961e"
       },
       "electronics": {
         "id": "electronics",
         "name": "Electronics",
         "nameFr": "Électronique",
         "iconName": "Smartphone",
-        "color": "#FFB05C"
+        "color": "#fa8334"
       },
       "sportingGoods": {
         "id": "sportingGoods",
         "name": "Sporting Goods",
         "nameFr": "Articles de sport",
         "iconName": "Dumbbell",
-        "color": "#FFA653"
+        "color": "#f7a948"
       },
       "homeGoods": {
         "id": "homeGoods",
         "name": "Home Goods",
         "nameFr": "Articles de maison",
         "iconName": "Sofa",
-        "color": "#FFAE66"
+        "color": "#f6bc72"
       },
       "books": {
         "id": "books",
         "name": "Books & Media",
         "nameFr": "Livres & Médias",
         "iconName": "BookOpen",
-        "color": "#FFB979"
+        "color": "#f5ce9c"
       }
     }
   },
@@ -96,7 +96,7 @@
     "name": "Transport",
     "nameFr": "Transport",
     "iconName": "Bus",
-    "color": "#36A2EB",
+    "color": "#f6bc00",
     "keywords": ["transport", "mobility", "metro", "subway", "bus"],
     "subcategories": {
       "publicTransport": {
@@ -104,35 +104,35 @@
         "name": "Public Transport",
         "nameFr": "Transports en commun",
         "iconName": "Bus",
-        "color": "#36A2EB"
+        "color": "#f6bc00"
       },
       "taxi": {
         "id": "taxi",
         "name": "Taxi & Ride Sharing",
         "nameFr": "Taxi & VTC",
         "iconName": "Car",
-        "color": "#4DABEF"
+        "color": "#eeb200"
       },
       "parking": {
         "id": "parking",
         "name": "Parking",
         "nameFr": "Stationnement",
         "iconName": "Parkingcircle",
-        "color": "#5FB4F2"
+        "color": "#ffc71f"
       },
       "fuel": {
         "id": "fuel",
         "name": "Fuel",
         "nameFr": "Carburant",
         "iconName": "Fuel",
-        "color": "#72BDF5"
+        "color": "#ffd24d"
       },
       "metro": {
         "id": "metro",
         "name": "Metro & Subway",
         "nameFr": "Métro",
         "iconName": "Train",
-        "color": "#84C5F8"
+        "color": "#ffdc7a"
       }
     }
   },
@@ -142,7 +142,7 @@
     "name": "Travel",
     "nameFr": "Voyages",
     "iconName": "Plane",
-    "color": "#9966FF",
+    "color": "#0096c7",
     "keywords": ["travel", "flight", "hotel", "booking", "airbnb"],
     "subcategories": {
       "flights": {
@@ -150,35 +150,35 @@
         "name": "Flights",
         "nameFr": "Vols",
         "iconName": "Plane",
-        "color": "#9966FF"
+        "color": "#0077b6"
       },
       "hotels": {
         "id": "hotels",
         "name": "Hotels",
         "nameFr": "Hôtels",
         "iconName": "Building",
-        "color": "#A37AFF"
+        "color": "#0096c7"
       },
       "trainTickets": {
         "id": "trainTickets",
         "name": "Train Tickets",
         "nameFr": "Billets de train",
         "iconName": "Train",
-        "color": "#AC8BFF"
+        "color": "#00b4d8"
       },
       "rentalCar": {
         "id": "rentalCar",
         "name": "Rental Car",
         "nameFr": "Location de voiture",
         "iconName": "Car",
-        "color": "#B59CFF"
+        "color": "#48cae4"
       },
       "activities": {
         "id": "activities",
         "name": "Activities & Tours",
         "nameFr": "Activités & Excursions",
         "iconName": "Map",
-        "color": "#BFADFF"
+        "color": "#90e0ef"
       }
     }
   },
@@ -188,7 +188,7 @@
     "name": "Transfer",
     "nameFr": "Transferts",
     "iconName": "ArrowLeftRight",
-    "color": "#4BC0C0",
+    "color": "#52b69a",
     "keywords": ["vir", "virement", "transfer", "sepa"],
     "subcategories": {
       "bankTransfer": {
@@ -196,35 +196,35 @@
         "name": "Bank Transfer",
         "nameFr": "Virement bancaire",
         "iconName": "Building",
-        "color": "#4BC0C0"
+        "color": "#52b69a"
       },
       "internalTransfer": {
         "id": "internalTransfer",
         "name": "Internal Transfer",
         "nameFr": "Virement interne",
         "iconName": "ArrowLeftRight",
-        "color": "#5EC7C7"
+        "color": "#76c893"
       },
       "deposit": {
         "id": "deposit",
         "name": "Deposit",
         "nameFr": "Dépôt",
         "iconName": "PiggyBank",
-        "color": "#6FCDCD"
+        "color": "#99d98c"
       },
       "withdrawal": {
         "id": "withdrawal",
         "name": "Withdrawal",
         "nameFr": "Retrait",
         "iconName": "Wallet",
-        "color": "#81D4D4"
+        "color": "#b5e48c"
       },
       "mobilePayment": {
         "id": "mobilePayment",
         "name": "Mobile Payment",
         "nameFr": "Paiement mobile",
         "iconName": "Smartphone",
-        "color": "#91DADA"
+        "color": "#d9ed92"
       }
     }
   },
@@ -234,7 +234,7 @@
     "name": "Payment",
     "nameFr": "Paiement",
     "iconName": "CreditCard",
-    "color": "#97D44C",
+    "color": "#0892a5",
     "keywords": ["payment", "carte", "paiement", "autorisation", "auth"],
     "subcategories": {
       "creditCard": {
@@ -242,35 +242,35 @@
         "name": "Credit Card",
         "nameFr": "Carte de crédit",
         "iconName": "CreditCard",
-        "color": "#97D44C"
+        "color": "#0892a5"
       },
       "bills": {
         "id": "bills",
         "name": "Bills & Utilities",
         "nameFr": "Factures & Services",
         "iconName": "Receipt",
-        "color": "#A3D95F"
+        "color": "#0aa2b8"
       },
       "subscription": {
         "id": "subscription",
         "name": "Subscriptions",
         "nameFr": "Abonnements",
         "iconName": "Repeat",
-        "color": "#AFDF72"
+        "color": "#25b3c4"
       },
       "insurance": {
         "id": "insurance",
         "name": "Insurance",
         "nameFr": "Assurance",
         "iconName": "Shield",
-        "color": "#BBE485"
+        "color": "#41c3d1"
       },
       "taxes": {
         "id": "taxes",
         "name": "Taxes",
         "nameFr": "Impôts",
         "iconName": "FileText",
-        "color": "#C7EA98"
+        "color": "#5dd3de"
       }
     }
   },
@@ -295,28 +295,28 @@
         "name": "Pharmacy",
         "nameFr": "Pharmacie",
         "iconName": "Pill",
-        "color": "#FF70D3"
+        "color": "#FF7CD9"
       },
       "optical": {
         "id": "optical",
         "name": "Optical",
         "nameFr": "Optique",
         "iconName": "Eye",
-        "color": "#FF84D9"
+        "color": "#FF9BE5"
       },
       "dental": {
         "id": "dental",
         "name": "Dental",
         "nameFr": "Dentaire",
         "iconName": "Smile",
-        "color": "#FF97DF"
+        "color": "#FFBAF0"
       },
       "fitness": {
         "id": "fitness",
         "name": "Fitness",
         "nameFr": "Fitness",
         "iconName": "Dumbbell",
-        "color": "#FFABE5"
+        "color": "#FFD9F7"
       }
     }
   },
@@ -326,7 +326,7 @@
     "name": "Entertainment",
     "nameFr": "Divertissement",
     "iconName": "Film",
-    "color": "#AA66CC",
+    "color": "#907ad6",
     "keywords": ["entertainment", "movie", "cinema", "concert", "event"],
     "subcategories": {
       "movies": {
@@ -334,35 +334,35 @@
         "name": "Movies & Cinema",
         "nameFr": "Films & Cinéma",
         "iconName": "Film",
-        "color": "#AA66CC"
+        "color": "#907ad6"
       },
       "music": {
         "id": "music",
         "name": "Music & Concerts",
         "nameFr": "Musique & Concerts",
         "iconName": "Music",
-        "color": "#B47AD2"
+        "color": "#7a64c5"
       },
       "games": {
         "id": "games",
         "name": "Games & Apps",
         "nameFr": "Jeux & Applications",
         "iconName": "Gamepad2",
-        "color": "#BE8ED8"
+        "color": "#6c4eb5"
       },
       "sports": {
         "id": "sports",
         "name": "Sports Events",
         "nameFr": "Événements sportifs",
         "iconName": "Trophy",
-        "color": "#C7A1DE"
+        "color": "#9d8de0"
       },
       "subscriptions": {
         "id": "subscriptions",
         "name": "Media Subscriptions",
         "nameFr": "Abonnements média",
         "iconName": "Tv",
-        "color": "#D1B5E4"
+        "color": "#b0a1e8"
       }
     }
   },
@@ -387,28 +387,28 @@
         "name": "Freelance",
         "nameFr": "Freelance",
         "iconName": "Laptop",
-        "color": "#65E6C8"
+        "color": "#72E7CD"
       },
       "investments": {
         "id": "investments",
         "name": "Investments",
         "nameFr": "Investissements",
         "iconName": "TrendingUp",
-        "color": "#7AE9CE"
+        "color": "#94ECD8"
       },
       "refunds": {
         "id": "refunds",
         "name": "Refunds",
         "nameFr": "Remboursements",
         "iconName": "RotateCcw",
-        "color": "#8FECD4"
+        "color": "#B6F0E3"
       },
       "gifts": {
         "id": "gifts",
         "name": "Gifts",
         "nameFr": "Cadeaux",
         "iconName": "Gift",
-        "color": "#A3EFDB"
+        "color": "#D7F5EE"
       }
     }
   },
@@ -432,14 +432,14 @@
         "name": "Fees & Charges",
         "nameFr": "Frais & Commissions",
         "iconName": "AlertCircle",
-        "color": "#ADADAD"
+        "color": "#B1B1B1"
       },
       "donations": {
         "id": "donations",
         "name": "Donations",
         "nameFr": "Dons",
         "iconName": "Heart",
-        "color": "#BDBDBD"
+        "color": "#C5C5C5"
       }
     }
   }
