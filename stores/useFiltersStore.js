@@ -2,6 +2,12 @@
 import { create } from "zustand";
 import { TRANSACTION_TYPES } from "@/utils/constants";
 import { getCurrentMonthAndYear } from "@/utils/dateUtils";
+import {
+  groupTransactionsByCategory,
+  groupTransactionsBySubcategory,
+  calculateTotalAmount,
+} from "@/utils/transactionUtils";
+import { getCategoryInfo } from "@/utils/categoryUtils";
 
 // Récupérer les valeurs par défaut pour le mois et l'année
 const { month: defaultMonth, year: defaultYear } = getCurrentMonthAndYear();
@@ -118,5 +124,72 @@ export const useFiltersStore = create((set, get) => ({
         chartLevel: "main",
       });
     }
+  },
+
+  // NOUVELLES FONCTIONS AJOUTÉES
+
+  // Gérer le clic sur une section du graphique
+  handleChartClick: (data) => {
+    const state = get();
+    if (state.chartLevel === "main" && data.categoryId) {
+      // Sélectionner la catégorie
+      get().handleChartSelection(data.categoryId);
+    } else if (state.chartLevel === "subcategory" && data.subcategoryId) {
+      // Sélectionner la sous-catégorie
+      get().handleChartSelection(state.selectedCategory, data.subcategoryId);
+    }
+  },
+
+  // Gérer le clic sur un élément de la légende
+  handleLegendClick: (categoryId, subcategoryId = null) => {
+    const state = get();
+    if (state.chartLevel === "main" && categoryId) {
+      get().handleChartSelection(categoryId);
+    } else if (subcategoryId) {
+      get().handleChartSelection(state.selectedCategory, subcategoryId);
+    }
+  },
+
+  // Calculer le titre du graphique en fonction des sélections actuelles
+  getChartTitle: () => {
+    const state = get();
+    if (state.chartLevel === "main") {
+      return `Total des ${
+        state.transactionType === TRANSACTION_TYPES.EXPENSES
+          ? "dépenses"
+          : "revenus"
+      }`;
+    } else if (state.selectedSubcategory) {
+      return getCategoryInfo(state.selectedCategory, state.selectedSubcategory)
+        .name;
+    } else if (state.selectedCategory) {
+      return getCategoryInfo(state.selectedCategory).name;
+    } else {
+      return "Toutes les transactions";
+    }
+  },
+
+  // Calculer le montant total en fonction des sélections actuelles et des transactions
+  calculateTotalAmount: (transactions) => {
+    const state = get();
+
+    // Si nous sommes au niveau principal, utiliser toutes les transactions
+    if (state.chartLevel === "main") {
+      return calculateTotalAmount(transactions);
+    }
+
+    // Si nous sommes au niveau sous-catégorie
+    let categoryTransactions = transactions.filter(
+      (tx) => tx.category?.id === state.selectedCategory
+    );
+
+    // Si une sous-catégorie est sélectionnée, filtrer davantage
+    if (state.selectedSubcategory) {
+      categoryTransactions = categoryTransactions.filter(
+        (tx) => tx.category?.subcategory?.id === state.selectedSubcategory
+      );
+    }
+
+    return calculateTotalAmount(categoryTransactions);
   },
 }));
