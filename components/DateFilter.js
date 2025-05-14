@@ -1,7 +1,6 @@
 // components/DateFilter.js
 "use client";
 
-import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
@@ -13,10 +12,6 @@ import { MONTHS } from "@/utils/dateUtils";
 import { useFiltersStore } from "@/stores/useFiltersStore";
 
 export default function DateFilter() {
-  // États locaux pour les dropdowns
-  const [isMonthOpen, setIsMonthOpen] = useState(false);
-  const [isYearOpen, setIsYearOpen] = useState(false);
-
   // Récupérer l'état et les actions depuis le store
   const selectedMonth = useFiltersStore((state) => state.selectedMonth);
   const selectedYear = useFiltersStore((state) => state.selectedYear);
@@ -29,22 +24,11 @@ export default function DateFilter() {
     return Array.from({ length: 6 }, (_, index) => currentYear - index);
   })();
 
-  // Gestionnaires d'événements
-  const handleMonthChange = (month) => {
-    setSelectedMonth(month);
-    setIsMonthOpen(false);
-  };
-
-  const handleYearChange = (year) => {
-    setSelectedYear(year);
-    setIsYearOpen(false);
-  };
-
   return (
     <div className="flex justify-center gap-4 py-6">
       {/* Filtre Mois */}
       <div className="w-30">
-        <DropdownMenu open={isMonthOpen} onOpenChange={setIsMonthOpen}>
+        <DropdownMenu>
           <DropdownMenuTrigger className="w-full bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-2 flex items-center justify-between hover:border-gray-300 focus:outline-none">
             <span className="text-gray-700">{selectedMonth || "Mois"}</span>
             <ChevronDown size={16} className="text-gray-500" />
@@ -53,7 +37,7 @@ export default function DateFilter() {
             {MONTHS.map((month) => (
               <DropdownMenuItem
                 key={month}
-                onClick={() => handleMonthChange(month)}
+                onClick={() => setSelectedMonth(month)}
                 className={`px-4 py-2 cursor-pointer focus:bg-gray-100 focus:text-gray-900 ${
                   selectedMonth === month
                     ? "bg-gray-100 flex items-center justify-between"
@@ -70,7 +54,7 @@ export default function DateFilter() {
 
       {/* Filtre Année */}
       <div className="w-30">
-        <DropdownMenu open={isYearOpen} onOpenChange={setIsYearOpen}>
+        <DropdownMenu>
           <DropdownMenuTrigger className="w-full bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-2 flex items-center justify-between hover:border-gray-300 focus:outline-none">
             <span className="text-gray-700">{selectedYear || "Année"}</span>
             <ChevronDown size={16} className="text-gray-500" />
@@ -79,7 +63,7 @@ export default function DateFilter() {
             {years.map((year) => (
               <DropdownMenuItem
                 key={year}
-                onClick={() => handleYearChange(year)}
+                onClick={() => setSelectedYear(year)}
                 className={`px-4 py-2 cursor-pointer focus:bg-gray-100 focus:text-gray-900 ${
                   selectedYear === year
                     ? "bg-gray-100 flex items-center justify-between"

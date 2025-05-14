@@ -9,7 +9,7 @@ import TransactionList from "@/components/TransactionList";
 import TransactionTypeFilter from "@/components/TransactionTypeFilter";
 import DateFilter from "@/components/DateFilter";
 import CategoryPieChart from "@/components/CategoryPieChart";
-import { formatDate, filterTransactionsByDate } from "@/utils/dateUtils";
+import { filterTransactionsByDate } from "@/utils/dateUtils";
 import { XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getCategoryInfo } from "@/utils/categoryUtils";
@@ -21,7 +21,7 @@ export default function TransactionsPage() {
   const { isDemoMode } = useDemoMode();
   const userId = session?.user?.id;
 
-  // Récupérer l'état et les actions depuis le store Zustand étendu
+  // Récupérer l'état et les actions depuis le store Zustand
   const {
     transactionType,
     selectedCategory,
@@ -66,15 +66,8 @@ export default function TransactionsPage() {
     });
   }, [dateFilteredTransactions, selectedCategory, selectedSubcategory]);
 
-  // Formater la date pour l'affichage
-  const formattedDate = useMemo(() => {
-    return formatDate(selectedMonth, selectedYear);
-  }, [selectedMonth, selectedYear]);
-
   // Obtenir le nombre de transactions après tous les filtres
-  const transactionCount = useMemo(() => {
-    return categoryFilteredTransactions.length;
-  }, [categoryFilteredTransactions]);
+  const transactionCount = categoryFilteredTransactions.length;
 
   // Obtenir les informations de la catégorie active (pour l'affichage)
   const activeCategoryInfo = useMemo(() => {
@@ -135,11 +128,9 @@ export default function TransactionsPage() {
             )}
           </div>
 
-          {formattedDate && (
-            <div className="text-sm text-gray-500 mb-3">
-              Nombre de transactions: {transactionCount}
-            </div>
-          )}
+          <div className="text-sm text-gray-500 mb-3">
+            Nombre de transactions: {transactionCount}
+          </div>
 
           <TransactionList
             transactions={categoryFilteredTransactions}

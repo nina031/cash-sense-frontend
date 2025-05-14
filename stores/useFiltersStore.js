@@ -1,6 +1,6 @@
 // stores/useFiltersStore.js
 import { create } from "zustand";
-import { TRANSACTION_TYPES } from "@/hooks/useTransactionTypeFilter";
+import { TRANSACTION_TYPES } from "@/utils/constants";
 import { getCurrentMonthAndYear } from "@/utils/dateUtils";
 
 // Récupérer les valeurs par défaut pour le mois et l'année
@@ -20,22 +20,22 @@ export const useFiltersStore = create((set, get) => ({
 
   // Actions qui modifient l'état
   setTransactionType: (type) =>
-    set((state) => ({
+    set({
       transactionType: type,
-      // Réinitialiser TOUS les filtres et l'état du graphique
+      // Réinitialiser les filtres de catégorie lorsqu'on change le type de transaction
       selectedCategory: null,
       selectedSubcategory: null,
       chartLevel: "main",
-    })),
+    }),
 
   // Définir une catégorie (réinitialise la sous-catégorie et change le niveau du graphique)
   selectCategory: (categoryId) =>
-    set((state) => ({
+    set({
       selectedCategory: categoryId,
       selectedSubcategory: null,
       // Si une catégorie est sélectionnée, on passe en niveau sous-catégorie
       chartLevel: categoryId ? "subcategory" : "main",
-    })),
+    }),
 
   // Définir une sous-catégorie
   selectSubcategory: (subcategoryId) =>
@@ -56,32 +56,6 @@ export const useFiltersStore = create((set, get) => ({
     set({
       selectedYear: year,
     }),
-
-  // Retour au niveau principal (sans catégorie sélectionnée)
-  goBackToMainLevel: () =>
-    set({
-      selectedCategory: null,
-      selectedSubcategory: null,
-      chartLevel: "main",
-    }),
-
-  // Retour au niveau catégorie (sans sous-catégorie sélectionnée)
-  goBackToCategoryLevel: () => {
-    // On vérifie d'abord si une sous-catégorie est sélectionnée
-    const state = get();
-    if (state.selectedSubcategory) {
-      // Si oui, on enlève juste la sous-catégorie
-      set({
-        selectedSubcategory: null,
-      });
-    } else {
-      // Sinon, on revient au niveau principal
-      set({
-        selectedCategory: null,
-        chartLevel: "main",
-      });
-    }
-  },
 
   // Effacer les filtres de catégorie et revenir au niveau principal
   clearCategoryFilters: () =>

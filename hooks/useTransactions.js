@@ -6,6 +6,12 @@ import {
   enableDemoMode,
 } from "@/services/transactionService";
 
+/**
+ * Hook to load and manage transactions data
+ *
+ * @param {string} userId - User ID to fetch transactions for
+ * @returns {Object} Transactions data, loading state, and error
+ */
 export function useTransactions(userId) {
   const { isDemoMode } = useDemoMode();
   const [transactions, setTransactions] = useState([]);
@@ -13,30 +19,43 @@ export function useTransactions(userId) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!isDemoMode || !userId) {
+    // Do nothing if conditions aren't met
+    if (!userId || !isDemoMode) {
       setTransactions([]);
       return;
     }
 
+    let isMounted = true;
     setLoading(true);
-    setError(null);
 
-    const loadTransactions = async () => {
+    async function loadData() {
       try {
-        // Activer le mode démo puis récupérer les transactions
         await enableDemoMode(userId);
         const data = await fetchTransactions(userId);
-        setTransactions(data);
+
+        if (isMounted) {
+          setTransactions(data);
+          setError(null);
+        }
       } catch (err) {
         console.error("Error loading transactions:", err);
-        setError(err.message || "Impossible de charger les transactions");
+        if (isMounted) {
+          setError(err.message || "Failed to load transactions");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-    };
+    }
 
-    loadTransactions();
-  }, [isDemoMode, userId]);
+    loadData();
+
+    // Cleanup function to handle component unmounting
+    return () => {
+      isMounted = false;
+    };
+  }, [userId, isDemoMode]);
 
   return { transactions, loading, error };
 }

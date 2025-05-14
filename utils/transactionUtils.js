@@ -1,5 +1,5 @@
 // utils/transactionUtils.js
-import { TRANSACTION_TYPES } from "@/hooks/useTransactionTypeFilter";
+import { TRANSACTION_TYPES } from "@/utils/constants";
 
 /**
  * Determines if a transaction is an expense
