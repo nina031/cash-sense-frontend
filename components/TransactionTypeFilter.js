@@ -1,7 +1,7 @@
 // components/TransactionTypeFilter.js
 import React from "react";
 import { useFiltersStore } from "@/stores/useFiltersStore";
-import { TRANSACTION_TYPES } from "@/hooks/useTransactionTypeFilter";
+import { TRANSACTION_TYPES } from "@/utils/constants";
 
 /**
  * Component for filtering transactions by type (expenses or income)
