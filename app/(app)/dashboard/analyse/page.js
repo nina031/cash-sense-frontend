@@ -1,7 +1,7 @@
 // app/(app)/dashboard/analyse/page.js
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDemoMode } from "@/contexts/DemoContext";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -15,11 +15,13 @@ import { Button } from "@/components/ui/button";
 import { getCategoryInfo } from "@/utils/categoryUtils";
 import { filterTransactionsByType } from "@/utils/transactionUtils";
 import { useFiltersStore } from "@/stores/useFiltersStore";
+import AddTransactionButton from "@/components/AddTransactionButton";
 
 export default function TransactionsPage() {
   const { session } = useAuth();
   const { isDemoMode } = useDemoMode();
   const userId = session?.user?.id;
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Récupérer l'état et les actions depuis le store Zustand
   const {
@@ -32,7 +34,12 @@ export default function TransactionsPage() {
   } = useFiltersStore();
 
   // Charger toutes les transactions
-  const { transactions, loading, error } = useTransactions(userId);
+  const { transactions, loading, error } = useTransactions(userId, refreshKey);
+
+  // Fonction pour forcer le rechargement des transactions après un ajout
+  const handleTransactionAdded = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
 
   // Filtrer les transactions par type (Dépenses/Revenus)
   const filteredByTypeTransactions = useMemo(() => {
@@ -104,28 +111,38 @@ export default function TransactionsPage() {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">Transactions</h2>
 
-            {/* Afficher le filtre actif et bouton pour l'effacer */}
-            {selectedCategory && (
-              <div className="flex items-center">
-                <div className="flex items-center bg-gray-100 rounded-md py-1 px-3 mr-2">
-                  <div
-                    className="w-3 h-3 rounded-full mr-2"
-                    style={{ backgroundColor: activeCategoryInfo?.color }}
-                  ></div>
-                  <span className="text-sm font-medium">
-                    {activeCategoryInfo?.name}
-                  </span>
+            {/* Partie droite avec filtre actif et/ou bouton d'ajout */}
+            <div className="flex items-center gap-2">
+              {/* Afficher le filtre actif et bouton pour l'effacer */}
+              {selectedCategory && (
+                <div className="flex items-center">
+                  <div className="flex items-center bg-gray-100 rounded-md py-1 px-3 mr-2">
+                    <div
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: activeCategoryInfo?.color }}
+                    ></div>
+                    <span className="text-sm font-medium">
+                      {activeCategoryInfo?.name}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearCategoryFilters}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <XCircle size={16} />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearCategoryFilters}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <XCircle size={16} />
-                </Button>
-              </div>
-            )}
+              )}
+
+              {/* Bouton d'ajout de transaction - n'apparaît pas en mode démo */}
+              {!isDemoMode && userId && (
+                <AddTransactionButton
+                  onTransactionAdded={handleTransactionAdded}
+                />
+              )}
+            </div>
           </div>
 
           <div className="text-sm text-gray-500 mb-3">

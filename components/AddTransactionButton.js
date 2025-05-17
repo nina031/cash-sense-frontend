@@ -21,10 +21,7 @@ export default function AddTransactionButton({ onTransactionAdded }) {
 
   // Gestionnaire pour l'ajout réussi d'une transaction
   const handleTransactionAdded = useCallback(() => {
-    toast.success("Transaction ajoutée avec succès", {
-      description:
-        "La transaction a été enregistrée et ajoutée à vos analyses.",
-    });
+    toast.success("Transaction ajoutée avec succès");
     setIsOpen(false);
 
     // Appeler le callback du parent si fourni
@@ -53,7 +50,7 @@ export default function AddTransactionButton({ onTransactionAdded }) {
       {/* Bouton d'ajout de transaction */}
       <Button
         onClick={handleButtonClick}
-        className="bg-[#8367c7] hover:bg-[#7559b7] flex items-center gap-2 text-white"
+        className="bg-[var(--primary-light)] hover:bg-[#7559b7] flex items-center gap-2 text-gray-600"
         aria-label="Ajouter une transaction"
       >
         <Plus size={16} />

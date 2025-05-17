@@ -79,50 +79,48 @@ export function DemoProvider({ children }) {
   // Fonction pour basculer le mode démo
   const toggleDemoMode = async () => {
     try {
-      if (isDemoMode) {
-        // Désactiver le mode démo
-        const success = deactivateDemoMode();
-        if (!success) return;
-      } else {
-        // Vérifier si l'utilisateur est connecté
-        if (!session?.user?.id) {
-          setError("Vous devez être connecté pour activer le mode démo");
-          // Rediriger vers la page de connexion
-          router.push("/login");
-          return;
-        }
-
-        // Activer le mode démo
-        const API_URL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
-        // Récupérer l'ID utilisateur depuis la session
-        const userId = session.user.id;
-
-        // Appeler l'API pour activer le mode démo côté serveur
-        const response = await fetch(`${API_URL}/api/toggle_demo_mode`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            enable_demo: true,
-            user_id: userId,
-          }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            errorData.error ||
-              `Échec de l'activation du mode démo: ${response.status}`
-          );
-        }
-
-        // Activer le mode démo côté client
-        const success = activateDemoMode();
-        if (!success) return;
+      // Vérifier si l'utilisateur est connecté
+      if (!session?.user?.id) {
+        setError("Vous devez être connecté pour changer le mode démo");
+        router.push("/login");
+        return;
       }
+
+      const API_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const userId = session.user.id;
+      const shouldEnable = !isDemoMode; // Inverse de l'état actuel
+
+      // Appeler l'API pour changer le mode démo côté serveur
+      console.log(`Changing demo mode to: ${shouldEnable}`);
+      const response = await fetch(`${API_URL}/api/toggle_demo_mode`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          enable_demo: shouldEnable,
+          user_id: userId,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error ||
+            `Échec de la modification du mode démo: ${response.status}`
+        );
+      }
+
+      // Mettre à jour l'état côté client
+      if (shouldEnable) {
+        sessionStorage.setItem("demo_mode", "true");
+        setIsDemoMode(true);
+      } else {
+        sessionStorage.removeItem("demo_mode");
+        setIsDemoMode(false);
+      }
+
       setError(null);
     } catch (err) {
       console.error("Erreur lors du changement de mode:", err);
