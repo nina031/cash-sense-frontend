@@ -1,11 +1,8 @@
 // components/TransactionList.js
 import TransactionItem from "./TransactionItem";
-import { useTransactionsStore } from "@/stores/useTransactionsStore";
 
-export default function TransactionList({ transactions }) {
-  // Obtenir l'état de chargement et les erreurs directement du store
-  const loading = useTransactionsStore((state) => state.loading);
-  const error = useTransactionsStore((state) => state.error);
+export default function TransactionList({ transactions, loading, error }) {
+  // États de chargement et d'erreur reçus en props plutôt que récupérés du store
 
   // Affichage du chargement
   if (loading) {

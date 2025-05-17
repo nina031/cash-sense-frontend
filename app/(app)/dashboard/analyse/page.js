@@ -25,10 +25,19 @@ export default function TransactionsPage() {
   const { session } = useAuth();
   const userId = session?.user?.id;
 
-  // Utiliser les nouveaux stores
-  const { fetchTransactions, loading, error } = useTransactionsStore();
+  // Utiliser les nouveaux stores avec sélecteurs individuels
+  // C'est important de sélectionner chaque état séparément pour éviter les boucles infinies
+  const fetchTransactions = useTransactionsStore(
+    (state) => state.fetchTransactions
+  );
+  const loading = useTransactionsStore((state) => state.loading);
+  const error = useTransactionsStore((state) => state.error);
+
   const isDemoMode = useDemoModeStore((state) => state.isDemoMode);
-  const { selectedCategory, clearCategoryFilters } = useFiltersStore();
+  const selectedCategory = useFiltersStore((state) => state.selectedCategory);
+  const clearCategoryFilters = useFiltersStore(
+    (state) => state.clearCategoryFilters
+  );
 
   // Utiliser les sélecteurs
   const filteredTransactions = useFilteredTransactions();
