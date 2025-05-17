@@ -62,7 +62,7 @@ export default function AddTransactionButton() {
       {/* Bouton d'ajout de transaction */}
       <Button
         onClick={handleButtonClick}
-        className="bg-[var(--primary-light)] hover:bg-[#7559b7] flex items-center gap-2 text-gray-600"
+        className="bg-[var(--primary-light)] hover:bg-[var(--primary-light-hover)] flex items-center gap-2 text-gray-600"
         aria-label="Ajouter une transaction"
       >
         <Plus size={16} />
@@ -71,7 +71,7 @@ export default function AddTransactionButton() {
 
       {/* Dialog pour le formulaire */}
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent className="sm:max-w-[550px] bg-white">
+        <DialogContent className="sm:max-w-[550px] bg-white border-white">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold">
               Ajouter une transaction

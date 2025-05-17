@@ -1,4 +1,5 @@
-// components/AddTransactionForm.js
+// components/AddTransactionForm.js avec les corrections pour le calendrier
+
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
@@ -210,7 +211,7 @@ export default function AddTransactionForm({ userId, onSuccess, onCancel }) {
           )}
         />
 
-        {/* Date */}
+        {/* Date - Avec la correction du calendrier */}
         <FormField
           control={form.control}
           name="date"
@@ -223,7 +224,7 @@ export default function AddTransactionForm({ userId, onSuccess, onCancel }) {
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "w-full pl-3 text-left font-normal bg-white",
+                        "w-full pl-3 text-left font-normal bg-white border-gray-300",
                         !field.value && "text-muted-foreground"
                       )}
                     >
@@ -232,13 +233,12 @@ export default function AddTransactionForm({ userId, onSuccess, onCancel }) {
                       ) : (
                         <span>Sélectionnez une date</span>
                       )}
-                      // Suite du fichier components/AddTransactionForm.js
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-auto p-0 bg-white border-gray-200 shadow-md"
+                  className="w-auto p-0 bg-white border-gray-300"
                   align="start"
                 >
                   <Calendar
@@ -247,19 +247,34 @@ export default function AddTransactionForm({ userId, onSuccess, onCancel }) {
                     onSelect={field.onChange}
                     initialFocus
                     locale={fr}
-                    className="bg-white"
+                    className="rounded-md"
                     classNames={{
-                      nav_button:
-                        "bg-white border border-gray-200 hover:bg-gray-100 p-2 rounded-md",
-                      nav_button_previous: "ml-1 h-7 w-7",
-                      nav_button_next: "mr-1 h-7 w-7",
-                      head: "bg-white",
-                      table: "bg-white",
-                      day: "bg-white hover:bg-gray-100",
+                      months:
+                        "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                      month: "space-y-4",
+                      caption: "flex justify-center pt-1 relative items-center",
+                      caption_label: "text-sm font-medium",
+                      nav: "space-x-1 flex items-center",
+                      nav_button: cn(
+                        "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+                      ),
+                      nav_button_previous: "absolute left-1",
+                      nav_button_next: "absolute right-1",
+                      table: "w-full border-collapse space-y-1 border-white",
+                      head_row: "flex",
+                      head_cell:
+                        "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+                      row: "flex w-full mt-2",
+                      cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                      day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
                       day_selected:
-                        "bg-[#8367c7] text-white hover:bg-[#7559b7]",
-                      day_today: "border border-[#8367c7]",
-                      caption: "px-2",
+                        "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                      day_today: "bg-accent text-accent-foreground",
+                      day_outside: "text-muted-foreground opacity-50",
+                      day_disabled: "text-muted-foreground opacity-50",
+                      day_range_middle:
+                        "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                      day_hidden: "invisible",
                     }}
                   />
                 </PopoverContent>
@@ -297,7 +312,7 @@ export default function AddTransactionForm({ userId, onSuccess, onCancel }) {
               <FormLabel>Catégorie</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger className="bg-white">
+                  <SelectTrigger className="bg-white border-gray-300">
                     <SelectValue placeholder="Sélectionner une catégorie" />
                   </SelectTrigger>
                 </FormControl>
