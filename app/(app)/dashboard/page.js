@@ -1,11 +1,8 @@
 "use client";
 
-import { useDemoMode } from "@/contexts/DemoContext";
 import Link from "next/link";
 
 export default function DashboardPage() {
-  const { isDemoMode } = useDemoMode();
-
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Tableau de bord</h1>

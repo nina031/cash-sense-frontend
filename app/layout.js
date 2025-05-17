@@ -1,13 +1,7 @@
-// app/layout.js avec l'ajout du Toaster
-"use client";
-
+// app/layout.js
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
-import { DemoProvider } from "@/contexts/DemoContext";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { SidebarProvider } from "@/contexts/SidebarContext";
-import { SessionProvider } from "next-auth/react";
-import { Toaster } from "@/components/ui/sonner";
+import { Providers } from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,14 +19,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>
-          <AuthProvider>
-            <DemoProvider>
-              <SidebarProvider>{children}</SidebarProvider>
-            </DemoProvider>
-          </AuthProvider>
-        </SessionProvider>
-        <Toaster position="bottom-right" />
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

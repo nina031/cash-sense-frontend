@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
-import { useDemoMode } from "@/contexts/DemoContext";
+import { useDemoModeStore } from "@/stores/useDemoModeStore";
 
 // Composant qui utilise useSearchParams
 function LoginForm() {
@@ -19,7 +19,10 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const { login } = useAuth();
-  const { shouldActivateDemo, toggleDemoMode } = useDemoMode();
+  const shouldActivateDemo = useDemoModeStore(
+    (state) => state.shouldActivateDemo
+  );
+  const toggleDemoMode = useDemoModeStore((state) => state.toggleDemoMode);
 
   // Si nous sommes en mode shouldActivateDemo, afficher un message spécial
   useEffect(() => {

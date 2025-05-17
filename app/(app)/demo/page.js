@@ -1,12 +1,20 @@
+// app/(app)/demo/page.js
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useDemoMode } from "@/contexts/DemoContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useDemoModeStore } from "@/stores/useDemoModeStore";
 
 export default function DemoPage() {
   const router = useRouter();
-  const { activateDemoMode, isDemoMode } = useDemoMode();
+  const { session } = useAuth();
+  const userId = session?.user?.id;
+
+  // Utiliser le store Zustand
+  const isDemoMode = useDemoModeStore((state) => state.isDemoMode);
+  const activateDemoMode = useDemoModeStore((state) => state.activateDemoMode);
+
   const [status, setStatus] = useState("Préparation du mode démo...");
   const [error, setError] = useState(null);
 
@@ -19,28 +27,16 @@ export default function DemoPage() {
 
     async function setupDemoMode() {
       try {
-        // Activer le mode démo dans le backend
-        const API_URL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        const response = await fetch(`${API_URL}/api/toggle_demo_mode`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            enable_demo: true,
-            user_id: "demo_user", // Identifiant de l'utilisateur de démo
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            `Échec de l'activation du mode démo: ${response.status}`
-          );
+        if (!userId) {
+          throw new Error("Vous devez être connecté pour activer le mode démo");
         }
 
-        // Activer le mode démo dans le frontend
-        activateDemoMode();
+        // Activer le mode démo
+        const success = await activateDemoMode(userId);
+
+        if (!success) {
+          throw new Error("Échec de l'activation du mode démo");
+        }
 
         // Rediriger vers le dashboard
         setStatus("Redirection vers le tableau de bord...");
@@ -54,7 +50,7 @@ export default function DemoPage() {
     }
 
     setupDemoMode();
-  }, [activateDemoMode, isDemoMode, router]);
+  }, [activateDemoMode, isDemoMode, router, userId]);
 
   return (
     <div className="container mx-auto px-4 py-8">

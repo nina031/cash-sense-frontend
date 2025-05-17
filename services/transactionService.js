@@ -3,7 +3,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 // Activer ou désactiver le mode démo
 export async function toggleDemoMode(userId, enableDemo = true) {
-  if (!userId) return;
+  if (!userId) throw new Error("ID utilisateur manquant");
 
   try {
     const response = await fetch(`${API_URL}/api/toggle_demo_mode`, {

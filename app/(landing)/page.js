@@ -1,13 +1,18 @@
+// app/(landing)/page.js
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useDemoMode } from "@/contexts/DemoContext";
+import { useDemoModeStore } from "@/stores/useDemoModeStore";
 
 export default function Home() {
   const router = useRouter();
-  const { setShouldActivateDemo } = useDemoMode();
+
+  // Utiliser le store Zustand pour le mode démo
+  const setShouldActivateDemo = useDemoModeStore(
+    (state) => state.setShouldActivateDemo
+  );
 
   const handleTryDemo = () => {
     // Définir l'état qui indique que le mode démo doit être activé après connexion

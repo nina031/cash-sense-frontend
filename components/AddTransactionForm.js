@@ -36,8 +36,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 
 import categoriesData from "@/utils/categories.json";
-import { addTransaction } from "@/services/transactionService";
-import { useDemoMode } from "@/contexts/DemoContext";
+import { useDemoModeStore } from "@/stores/useDemoModeStore";
 
 // Schéma de validation Zod pour notre formulaire
 const formSchema = z.object({
@@ -67,8 +66,8 @@ export default function AddTransactionForm({ userId, onSuccess, onCancel }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  // Récupérer l'état du mode démo depuis le contexte
-  const { isDemoMode } = useDemoMode();
+  // Récupérer l'état du mode démo depuis le store
+  const isDemoMode = useDemoModeStore((state) => state.isDemoMode);
 
   // Initialiser react-hook-form avec notre schéma de validation
   const form = useForm({
@@ -123,14 +122,11 @@ export default function AddTransactionForm({ userId, onSuccess, onCancel }) {
             },
           },
           is_manual: true,
-          is_test_data: isDemoMode, // Utilise directement la valeur du contexte
+          is_test_data: isDemoMode,
         };
 
-        // Appeler l'API pour ajouter la transaction
-        await addTransaction(userId, transactionData);
-
         // Notifier le composant parent du succès
-        if (onSuccess) onSuccess();
+        if (onSuccess) onSuccess(transactionData);
       } catch (error) {
         console.error("Erreur lors de l'ajout de la transaction:", error);
         form.setError("root.serverError", {
@@ -144,7 +140,7 @@ export default function AddTransactionForm({ userId, onSuccess, onCancel }) {
       }
     },
     [userId, onSuccess, form, isDemoMode]
-  ); // N'oubliez pas d'inclure isDemoMode dans les dépendances
+  );
 
   // Gestionnaire d'annulation
   const handleCancel = useCallback(() => {
@@ -236,6 +232,7 @@ export default function AddTransactionForm({ userId, onSuccess, onCancel }) {
                       ) : (
                         <span>Sélectionnez une date</span>
                       )}
+                      // Suite du fichier components/AddTransactionForm.js
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </FormControl>

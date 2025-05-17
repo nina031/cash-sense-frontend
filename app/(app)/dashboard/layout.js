@@ -1,22 +1,32 @@
+// app/(app)/dashboard/layout.js
 "use client";
 
+import { useEffect } from "react";
 import SideNav from "@/components/SideNav";
 import UserMenu from "@/components/UserMenu";
 import TestModeToggle from "@/components/TestModeToggle";
-import { useDemoMode } from "@/contexts/DemoContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useSidebar } from "@/contexts/SidebarContext";
+import { useDemoModeStore } from "@/stores/useDemoModeStore";
 
 export default function DashboardLayout({ children }) {
-  const { isDemoMode, deactivateDemoMode } = useDemoMode();
+  // Utiliser le store Zustand
+  const isDemoMode = useDemoModeStore((state) => state.isDemoMode);
+  const deactivateDemoMode = useDemoModeStore(
+    (state) => state.deactivateDemoMode
+  );
+
   const { session } = useAuth();
   const router = useRouter();
   const { isCollapsed, isMounted } = useSidebar();
+  const userId = session?.user?.id;
 
-  const handleExitDemo = () => {
-    deactivateDemoMode();
-    router.push("/");
+  const handleExitDemo = async () => {
+    if (userId) {
+      await deactivateDemoMode(userId);
+      router.push("/");
+    }
   };
 
   return (

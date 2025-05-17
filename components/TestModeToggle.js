@@ -1,27 +1,41 @@
+// components/TestModeToggle.js
 "use client";
 
 import { useState, useEffect } from "react";
-import { useDemoMode } from "@/contexts/DemoContext";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { useDemoModeStore } from "@/stores/useDemoModeStore";
 
 export default function TestModeToggle() {
-  const { isDemoMode, toggleDemoMode } = useDemoMode();
-  const [isLoading, setIsLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const { session } = useAuth();
+  const userId = session?.user?.id;
+
+  // Utiliser le store Zustand
+  const isDemoMode = useDemoModeStore((state) => state.isDemoMode);
+  const toggleDemoMode = useDemoModeStore((state) => state.toggleDemoMode);
+  const loading = useDemoModeStore((state) => state.loading);
+  const error = useDemoModeStore((state) => state.error);
 
   // S'assurer que le composant est monté côté client pour éviter les erreurs d'hydratation
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  // Afficher toute erreur qui pourrait survenir
+  useEffect(() => {
+    if (error) {
+      console.error("Erreur du mode démo:", error);
+    }
+  }, [error]);
+
   const handleToggle = async () => {
-    setIsLoading(true);
+    if (!userId) return;
+
     try {
-      await toggleDemoMode();
+      await toggleDemoMode(userId);
     } catch (error) {
       console.error("Erreur lors du changement de mode:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -36,7 +50,7 @@ export default function TestModeToggle() {
 
       <button
         onClick={handleToggle}
-        disabled={isLoading}
+        disabled={loading}
         className={cn(
           "relative flex items-center w-10 h-5 rounded-full transition-colors duration-300",
           isDemoMode ? "bg-[var(--primary)]" : "bg-gray-300"
@@ -52,7 +66,7 @@ export default function TestModeToggle() {
         />
       </button>
 
-      {isLoading && (
+      {loading && (
         <div className="ml-2">
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
         </div>

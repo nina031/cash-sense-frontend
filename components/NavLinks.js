@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-import { useDemoMode } from "@/contexts/DemoContext";
+import { useDemoModeStore } from "@/stores/useDemoModeStore";
 import { useRouter } from "next/navigation";
 
 // Définition des liens de navigation principaux
@@ -33,7 +33,7 @@ const mainLinks = [
 export default function NavLinks({ isCollapsed = false }) {
   const pathname = usePathname();
   const { logout } = useAuth();
-  const { isDemoMode } = useDemoMode();
+  const isDemoMode = useDemoModeStore((state) => state.isDemoMode);
   const router = useRouter();
 
   // Fonction de déconnexion

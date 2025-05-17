@@ -1,91 +1,46 @@
 // app/(app)/dashboard/analyse/page.js
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useDemoMode } from "@/contexts/DemoContext";
-import { useTransactions } from "@/hooks/useTransactions";
 import TransactionList from "@/components/TransactionList";
 import TransactionTypeFilter from "@/components/TransactionTypeFilter";
 import DateFilter from "@/components/DateFilter";
 import CategoryPieChart from "@/components/CategoryPieChart";
-import { filterTransactionsByDate } from "@/utils/dateUtils";
 import { XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getCategoryInfo } from "@/utils/categoryUtils";
-import { filterTransactionsByType } from "@/utils/transactionUtils";
-import { useFiltersStore } from "@/stores/useFiltersStore";
 import AddTransactionButton from "@/components/AddTransactionButton";
+
+// Nouveaux imports
+import { useTransactionsStore } from "@/stores/useTransactionsStore";
+import { useDemoModeStore } from "@/stores/useDemoModeStore";
+import { useFiltersStore } from "@/stores/useFiltersStore";
+import {
+  useFilteredTransactions,
+  useFilteredTransactionsCount,
+  useActiveCategoryInfo,
+} from "@/stores/selectors";
 
 export default function TransactionsPage() {
   const { session } = useAuth();
-  const { isDemoMode } = useDemoMode();
   const userId = session?.user?.id;
-  const [refreshKey, setRefreshKey] = useState(0);
 
-  // Récupérer l'état et les actions depuis le store Zustand
-  const {
-    transactionType,
-    selectedCategory,
-    selectedSubcategory,
-    selectedMonth,
-    selectedYear,
-    clearCategoryFilters,
-  } = useFiltersStore();
+  // Utiliser les nouveaux stores
+  const { fetchTransactions, loading, error } = useTransactionsStore();
+  const isDemoMode = useDemoModeStore((state) => state.isDemoMode);
+  const { selectedCategory, clearCategoryFilters } = useFiltersStore();
 
-  // Charger toutes les transactions
-  const { transactions, loading, error } = useTransactions(userId, refreshKey);
+  // Utiliser les sélecteurs
+  const filteredTransactions = useFilteredTransactions();
+  const transactionCount = useFilteredTransactionsCount();
+  const activeCategoryInfo = useActiveCategoryInfo();
 
-  // Fonction pour forcer le rechargement des transactions après un ajout
-  const handleTransactionAdded = () => {
-    setRefreshKey((prev) => prev + 1);
-  };
-
-  // Filtrer les transactions par type (Dépenses/Revenus)
-  const filteredByTypeTransactions = useMemo(() => {
-    return filterTransactionsByType(transactions, transactionType);
-  }, [transactions, transactionType]);
-
-  // Filtrer les transactions par date
-  const dateFilteredTransactions = useMemo(() => {
-    return filterTransactionsByDate(
-      filteredByTypeTransactions,
-      selectedMonth,
-      selectedYear
-    );
-  }, [filteredByTypeTransactions, selectedMonth, selectedYear]);
-
-  // Filtrer les transactions par catégorie
-  const categoryFilteredTransactions = useMemo(() => {
-    if (!selectedCategory) return dateFilteredTransactions;
-
-    return dateFilteredTransactions.filter((transaction) => {
-      // Vérifier la catégorie principale
-      if (transaction.category?.id !== selectedCategory) return false;
-
-      // Si une sous-catégorie est sélectionnée, filtrer aussi par sous-catégorie
-      if (selectedSubcategory) {
-        return transaction.category?.subcategory?.id === selectedSubcategory;
-      }
-
-      // Si seulement la catégorie principale est sélectionnée
-      return true;
-    });
-  }, [dateFilteredTransactions, selectedCategory, selectedSubcategory]);
-
-  // Obtenir le nombre de transactions après tous les filtres
-  const transactionCount = categoryFilteredTransactions.length;
-
-  // Obtenir les informations de la catégorie active (pour l'affichage)
-  const activeCategoryInfo = useMemo(() => {
-    if (!selectedCategory) return null;
-
-    if (selectedSubcategory) {
-      return getCategoryInfo(selectedCategory, selectedSubcategory);
+  // Charger les transactions au montage
+  useEffect(() => {
+    if (userId) {
+      fetchTransactions(userId);
     }
-
-    return getCategoryInfo(selectedCategory);
-  }, [selectedCategory, selectedSubcategory]);
+  }, [userId, fetchTransactions]);
 
   return (
     <div className="flex flex-col h-full">
@@ -103,7 +58,7 @@ export default function TransactionsPage() {
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(90vh-270px)]">
         {/* Graphique circulaire des catégories */}
         <div className="bg-white rounded-lg p-15 shadow-lg border border-gray-100 overflow-auto">
-          <CategoryPieChart transactions={dateFilteredTransactions} />
+          <CategoryPieChart transactions={filteredTransactions} />
         </div>
 
         {/* Liste des transactions */}
@@ -137,11 +92,7 @@ export default function TransactionsPage() {
               )}
 
               {/* Bouton d'ajout de transaction - n'apparaît pas en mode démo */}
-              {!isDemoMode && userId && (
-                <AddTransactionButton
-                  onTransactionAdded={handleTransactionAdded}
-                />
-              )}
+              {!isDemoMode && userId && <AddTransactionButton />}
             </div>
           </div>
 
@@ -150,7 +101,7 @@ export default function TransactionsPage() {
           </div>
 
           <TransactionList
-            transactions={categoryFilteredTransactions}
+            transactions={filteredTransactions}
             loading={loading}
             error={error}
           />

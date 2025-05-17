@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { useDemoMode } from "@/contexts/DemoContext";
+import { useDemoModeStore } from "@/stores/useDemoModeStore";
 
 export default function AccountSettingsPage() {
   const { session } = useAuth();
-  const { isDemoMode } = useDemoMode();
+  const isDemoMode = useDemoModeStore((state) => state.isDemoMode);
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(session?.user?.name || "");
   const [email, setEmail] = useState(session?.user?.email || "");
