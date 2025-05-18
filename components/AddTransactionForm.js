@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { CalendarIcon, Check } from "lucide-react";
+import { Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,8 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
+import DatePicker from "@/components/DatePicker";
 
 import categoriesData from "@/utils/categories.json";
 import { useDemoModeStore } from "@/stores/useDemoModeStore";
@@ -229,27 +229,14 @@ export default function AddTransactionForm({ userId, onSuccess, onCancel }) {
           )}
         />
 
-        {/* Date - with improved styling */}
+        {/* Date field with our new DatePicker component */}
         <FormField
           control={form.control}
           name="date"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col">
               <FormLabel className="text-gray-700 font-medium">Date</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Input
-                    type="date"
-                    className="bg-white w-full py-2.5 pl-3 pr-10 border-2 border-gray-200 hover:border-gray-300 focus:border-[var(--primary)] rounded-lg shadow-sm"
-                    value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
-                    onChange={(e) => {
-                      const date = e.target.valueAsDate || new Date();
-                      field.onChange(date);
-                    }}
-                  />
-                  <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                </div>
-              </FormControl>
+              <DatePicker value={field.value} onChange={field.onChange} />
               <FormMessage />
             </FormItem>
           )}

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "react-datepicker/dist/react-datepicker.css";
 
 :root {
   /* Couleurs principales */
@@ -131,12 +132,24 @@ textarea:focus {
   }
 }
 
-/* Styles spécifiques pour react-datepicker */
+/* Styles pour react-datepicker */
+.datepicker-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Style de l'input */
+.datepicker-wrapper input {
+  width: 100%;
+}
+
+/* Style de l'icône du calendrier */
+/* Quelques styles essentiels pour le calendrier */
 .react-datepicker {
   font-family: var(--font-geist-sans), system-ui, sans-serif !important;
-  border-color: #e2e8f0 !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 0.5rem !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
 }
 
 .react-datepicker__header {
@@ -144,25 +157,12 @@ textarea:focus {
   border-bottom: 1px solid #e2e8f0 !important;
 }
 
-.react-datepicker__day--selected,
-.react-datepicker__day--keyboard-selected {
-  background-color: var(--primary) !important;
-  color: white !important;
-}
-
-.react-datepicker__day:hover {
-  background-color: var(--primary-light) !important;
-}
-
-.react-datepicker__day--selected:hover {
-  background-color: var(--primary-hover) !important;
-}
-
+/* Cacher le triangle du popover */
 .react-datepicker__triangle {
   display: none !important;
 }
 
-.react-datepicker__day--today {
-  font-weight: bold !important;
-  color: var(--primary) !important;
+/* Assurer que le calendrier apparaît au-dessus des autres éléments */
+.react-datepicker-popper {
+  z-index: 50 !important;
 }
