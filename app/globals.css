@@ -130,3 +130,39 @@ textarea:focus {
     @apply text-[#ff6b6b] font-medium;
   }
 }
+
+/* Styles spécifiques pour react-datepicker */
+.react-datepicker {
+  font-family: var(--font-geist-sans), system-ui, sans-serif !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.react-datepicker__header {
+  background-color: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: var(--primary) !important;
+  color: white !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: var(--primary-light) !important;
+}
+
+.react-datepicker__day--selected:hover {
+  background-color: var(--primary-hover) !important;
+}
+
+.react-datepicker__triangle {
+  display: none !important;
+}
+
+.react-datepicker__day--today {
+  font-weight: bold !important;
+  color: var(--primary) !important;
+}
